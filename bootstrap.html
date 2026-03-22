@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bootstrap — Karun Thapa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+:root{--ink:#0a0908;--ink2:#12100e;--gold:#c9a84c;--gold2:#e8c97a;--amber:#d4882a;--cream:#ede8dc;--muted:#7a6f60;--border:#2a2520;--accent:#7c4dff;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--ink);color:var(--cream);font-family:'Cormorant Garamond',serif;min-height:100vh;overflow-x:hidden;cursor:none;}
+body::before{content:'';position:fixed;inset:0;z-index:0;background-image:url('https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=1920&q=80&auto=format&fit=crop');background-size:cover;background-position:center;background-attachment:fixed;filter:brightness(0.1) saturate(0.4) blur(2px);pointer-events:none;}
+#loader,#sidebar,#main{position:relative;z-index:1;}
+#cursor{position:fixed;top:0;left:0;z-index:99999;width:10px;height:10px;border-radius:50%;background:var(--gold);pointer-events:none;transform:translate(-50%,-50%);mix-blend-mode:screen;}
+#cursor-ring{position:fixed;top:0;left:0;z-index:99998;width:36px;height:36px;border-radius:50%;border:1px solid var(--gold);pointer-events:none;transform:translate(-50%,-50%);transition:transform 0.15s;opacity:0.5;}
+#loader{position:fixed;inset:0;background:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10000;transition:opacity .8s ease,visibility .8s ease;}
+#loader.hidden{opacity:0;visibility:hidden;}
+.loader-sigil{font-family:'Bebas Neue',sans-serif;font-size:80px;color:var(--gold);letter-spacing:8px;animation:sp 2s ease-in-out infinite;}
+@keyframes sp{0%,100%{opacity:0.4;text-shadow:0 0 20px var(--gold);}50%{opacity:1;text-shadow:0 0 60px var(--gold);}}
+.loader-line{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:3px;margin-top:16px;overflow:hidden;white-space:nowrap;border-right:1px solid var(--gold);width:0;animation:ft 1.4s ease forwards;}
+@keyframes ft{to{width:100%;}}
+.loader-progress{width:200px;height:1px;background:var(--border);margin-top:24px;overflow:hidden;}
+.loader-fill{height:100%;width:0;background:linear-gradient(90deg,var(--amber),var(--gold2));animation:fb 2.2s ease forwards;}
+@keyframes fb{to{width:100%;}}
+#sidebar{position:fixed;top:0;left:0;bottom:0;width:220px;background:rgba(10,9,8,0.95);border-right:1px solid var(--border);backdrop-filter:blur(20px);display:flex;flex-direction:column;z-index:500;padding:40px 0;transform:translateX(-180px);transition:transform 0.4s cubic-bezier(0.4,0,0.2,1);}
+#sidebar:hover{transform:translateX(0);}
+.sidebar-toggle{position:absolute;right:-18px;top:50%;transform:translateY(-50%);width:18px;height:60px;background:var(--border);border:1px solid var(--border);border-left:none;display:flex;align-items:center;justify-content:center;cursor:none;font-size:8px;color:var(--gold);border-radius:0 4px 4px 0;writing-mode:vertical-lr;letter-spacing:2px;font-family:'Space Mono',monospace;}
+.sidebar-logo{padding:0 24px 32px;border-bottom:1px solid var(--border);margin-bottom:16px;}
+.logo-mark{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--gold);letter-spacing:3px;display:block;}
+.logo-sub{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:4px;}
+.nav-link{display:flex;align-items:center;gap:14px;padding:13px 24px;font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);text-decoration:none;text-transform:uppercase;letter-spacing:2px;border-left:2px solid transparent;transition:all 0.25s ease;cursor:none;}
+.nav-link:hover,.nav-link.active{color:var(--gold);border-left-color:var(--gold);background:rgba(201,168,76,0.05);}
+#main{margin-left:40px;}
+.page-hero{position:relative;height:420px;display:flex;align-items:flex-end;overflow:hidden;}
+.page-hero-bg{position:absolute;inset:0;background-image:url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1920&q=80&auto=format&fit=crop');background-size:cover;background-position:center;filter:brightness(0.15) sepia(0.4);animation:sz 20s ease-in-out infinite alternate;}
+@keyframes sz{to{transform:scale(0.97);}}
+.page-hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,var(--ink) 25%,transparent 80%);}
+.page-hero-content{position:relative;z-index:2;padding:60px 80px;}
+.page-chapter{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:4px;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:12px;}
+.page-chapter::before{content:'';display:inline-block;width:30px;height:1px;background:var(--accent);}
+.page-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(56px,8vw,100px);color:#fff;letter-spacing:2px;line-height:0.9;}
+.page-subtitle{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:20px;color:var(--muted);margin-top:10px;}
+.content{padding:60px 80px 60px;max-width:1100px;}
+.block{margin-bottom:72px;}
+.block-tag{display:inline-block;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);border:1px solid var(--border);padding:4px 12px;margin-bottom:16px;}
+.block-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(32px,4vw,52px);color:#fff;letter-spacing:1px;line-height:1.1;margin-bottom:20px;}
+.block-body{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--cream);line-height:1.9;max-width:720px;}
+.block-body strong{color:var(--gold);}
+.block-body code{font-family:'Space Mono',monospace;font-size:13px;color:var(--accent);background:rgba(124,77,255,0.08);padding:2px 6px;}
+.code-block{background:var(--ink2);border:1px solid var(--border);margin:28px 0;overflow:hidden;}
+.code-block-header{background:rgba(124,77,255,0.06);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;gap:12px;}
+.cbt{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);flex:1;}
+.cbl{font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);border:1px solid var(--border);padding:2px 8px;}
+.code-block-body{display:flex;overflow-x:auto;}
+.line-nums{padding:14px 12px;background:rgba(0,0,0,0.4);border-right:1px solid var(--border);text-align:right;min-width:44px;flex-shrink:0;user-select:none;}
+.line-nums span{display:block;font-family:'Space Mono',monospace;font-size:11px;color:var(--border);line-height:1.75;}
+.code-content{padding:14px 22px;font-family:'Space Mono',monospace;font-size:12px;line-height:1.75;white-space:pre;flex:1;}
+.kw{color:#ff79c6;}.att{color:#50fa7b;}.val{color:#f1fa8c;}.com{color:#6272a4;font-style:italic;}.tag{color:#ff79c6;}
+.interactive-label{font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.interactive-label::before{content:'●';color:#7c4dff;animation:blink 1s step-end infinite;}
+@keyframes blink{50%{opacity:0;}}
+.styled-table{width:100%;border-collapse:collapse;margin-top:20px;}
+.styled-table th{background:rgba(124,77,255,0.07);padding:12px 18px;font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:1px;text-align:left;border-bottom:2px solid var(--accent);border-top:1px solid var(--border);}
+.styled-table td{padding:12px 18px;border-bottom:1px solid var(--border);font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);}
+.styled-table tr:hover td{background:rgba(124,77,255,0.03);color:var(--cream);}
+.page-nav{display:flex;justify-content:space-between;align-items:center;padding:48px 80px;border-top:1px solid var(--border);flex-wrap:wrap;gap:16px;}
+.page-nav a{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);text-decoration:none;padding:14px 32px;border:1px solid var(--border);transition:all 0.3s;cursor:none;}
+.page-nav a:hover{border-color:var(--gold);color:var(--gold);}
+.page-nav a.next{background:var(--gold);color:var(--ink);border-color:var(--gold);}
+footer{padding:24px 80px;border-top:1px solid var(--border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.footer-text{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity 0.7s ease,transform 0.7s ease;}
+.reveal.visible{opacity:1;transform:none;}
+
+.grid-builder-wrap{background:var(--ink2);border:1px solid var(--border);padding:28px;margin-top:24px;}
+.grid-controls{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:20px;}
+.gc-group{display:flex;flex-direction:column;gap:5px;}
+.gc-label{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;}
+.gc-select{background:var(--ink);border:1px solid var(--border);color:var(--cream);padding:7px 12px;font-family:'Space Mono',monospace;font-size:11px;cursor:none;outline:none;}
+.gc-select:focus{border-color:var(--accent);}
+.grid-output{min-height:120px;border:2px dashed rgba(124,77,255,0.3);padding:8px;}
+.gc-item{padding:14px;background:rgba(124,77,255,0.2);border:1px solid rgba(124,77,255,0.5);font-family:'Space Mono',monospace;font-size:11px;color:#fff;text-align:center;margin:4px 0;}
+.grid-code{font-family:'Space Mono',monospace;font-size:11px;color:#8be9fd;background:rgba(0,0,0,0.3);border:1px solid var(--border);padding:14px 18px;margin-top:12px;}
+
+.comp-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:0;}
+.comp-tab{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:12px 24px;color:var(--muted);cursor:none;border:none;background:none;border-bottom:2px solid transparent;transition:all 0.2s;}
+.comp-tab:hover,.comp-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.comp-panel{display:none;background:#fff;padding:28px;min-height:200px;}
+.comp-panel.active{display:block;}
+
+.utility-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px;}
+.util-chip{font-family:'Space Mono',monospace;font-size:10px;padding:5px 12px;border:1px solid var(--border);color:var(--muted);cursor:none;background:var(--ink2);transition:all 0.2s;}
+.util-chip:hover{border-color:var(--accent);color:var(--accent);}
+.util-output{background:var(--ink2);border:1px solid var(--border);padding:16px 20px;margin-top:14px;font-family:'Space Mono',monospace;font-size:11px;color:var(--cream);line-height:1.9;min-height:60px;}
+
+@media(max-width:768px){#sidebar{transform:translateX(-220px);}#main{margin-left:0;}.page-hero-content,.content{padding:40px 24px;}.page-nav{padding:32px 24px;}}
+</style>
+</head>
+<body>
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+<div id="loader">
+  <div class="loader-sigil">BS5</div>
+  <div class="loader-line">importing bootstrap ...</div>
+  <div class="loader-progress"><div class="loader-fill"></div></div>
+</div>
+<nav id="sidebar">
+  <div class="sidebar-toggle">MENU</div>
+  <div class="sidebar-logo"><span class="logo-mark">KARUN</span><span class="logo-sub">Full Stack ePortfolio</span></div>
+  <a href="index.html" class="nav-link">00 &nbsp;⌂&nbsp; Home</a>
+  <a href="fullstack.html" class="nav-link">01 &nbsp;◈&nbsp; Full Stack</a>
+  <a href="html.html" class="nav-link">02 &nbsp;⟨⟩&nbsp; HTML</a>
+  <a href="css.html" class="nav-link">03 &nbsp;✦&nbsp; CSS</a>
+  <a href="bootstrap.html" class="nav-link active">04 &nbsp;⊞&nbsp; Bootstrap</a>
+  <a href="javascript.html" class="nav-link">05 &nbsp;λ&nbsp; JavaScript</a>
+</nav>
+<main id="main">
+  <div class="page-hero">
+    <div class="page-hero-bg"></div>
+    <div class="page-hero-overlay"></div>
+    <div class="page-hero-content">
+      <div class="page-chapter">Chapter 04 — Bootstrap</div>
+      <h1 class="page-title">BOOT<br>STRAP</h1>
+      <p class="page-subtitle">Rapid, responsive, production-ready UI.</p>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <div class="block reveal">
+      <div class="block-tag">Definition</div>
+      <h2 class="block-title">What is Bootstrap?</h2>
+      <div class="block-body">
+        <strong>Bootstrap</strong> is the world's most popular open-source CSS framework, created by Twitter in 2011. It gives developers a ready-made library of CSS and JavaScript components — buttons, navbars, modals, cards, forms — that look great out of the box and work responsively across all screen sizes.
+        <br><br>
+        Instead of writing hundreds of lines of CSS from scratch, Bootstrap lets you apply <strong>utility classes</strong> and <strong>component classes</strong> directly in HTML. It's loaded in seconds via CDN: <code>&lt;link rel="stylesheet" href="bootstrap.min.css"&gt;</code>
+      </div>
+    </div>
+
+    <div class="block reveal">
+      <div class="block-tag">Core System</div>
+      <h2 class="block-title">The 12-Column Grid</h2>
+      <div class="block-body">
+        Bootstrap divides every row into <strong>12 equal columns</strong>. You assign column widths using classes like <code>col-4</code> (4 of 12 = ⅓ width). Breakpoint prefixes make layouts responsive without any custom CSS:
+      </div>
+      <div class="code-block" style="margin-top:24px;">
+        <div class="code-block-header"><span class="cbt">grid.html — Responsive Bootstrap grid</span><span class="cbl">Bootstrap 5</span></div>
+        <div class="code-block-body">
+          <div class="line-nums"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span></div>
+          <div class="code-content"><span class="com">&lt;!-- col-12 on mobile, col-md-6 on tablet, col-lg-4 on desktop --&gt;</span>
+<span class="tag">&lt;div</span> <span class="att">class=</span><span class="val">"container"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;div</span> <span class="att">class=</span><span class="val">"row g-3"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;div</span> <span class="att">class=</span><span class="val">"col-12 col-md-6 col-lg-4"</span><span class="tag">&gt;</span>Column 1<span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;div</span> <span class="att">class=</span><span class="val">"col-12 col-md-6 col-lg-4"</span><span class="tag">&gt;</span>Column 2<span class="tag">&lt;/div&gt;</span>
+    <span class="tag">&lt;div</span> <span class="att">class=</span><span class="val">"col-12 col-md-12 col-lg-4"</span><span class="tag">&gt;</span>Column 3<span class="tag">&lt;/div&gt;</span>
+  <span class="tag">&lt;/div&gt;</span>
+<span class="tag">&lt;/div&gt;</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="block reveal">
+      <div class="block-tag">Interactive Grid Builder</div>
+      <h2 class="block-title">Build Your Own Grid</h2>
+      <p class="block-body" style="margin-bottom:24px;">Select breakpoints and column sizes — the live preview shows how Bootstrap renders the grid:</p>
+      <div class="interactive-label">Live Grid Builder — Adjust and preview instantly</div>
+      <div class="grid-builder-wrap">
+        <div class="grid-controls">
+          <div class="gc-group">
+            <span class="gc-label">Columns</span>
+            <select class="gc-select" id="gcCols" onchange="buildGrid()">
+              <option value="2">2 columns</option>
+              <option value="3" selected>3 columns</option>
+              <option value="4">4 columns</option>
+              <option value="6">6 columns</option>
+            </select>
+          </div>
+          <div class="gc-group">
+            <span class="gc-label">Breakpoint</span>
+            <select class="gc-select" id="gcBreak" onchange="buildGrid()">
+              <option value="">None (always stacked)</option>
+              <option value="sm">sm (≥576px)</option>
+              <option value="md" selected>md (≥768px)</option>
+              <option value="lg">lg (≥992px)</option>
+              <option value="xl">xl (≥1200px)</option>
+            </select>
+          </div>
+          <div class="gc-group">
+            <span class="gc-label">Gutter</span>
+            <select class="gc-select" id="gcGutter" onchange="buildGrid()">
+              <option value="g-0">g-0 (none)</option>
+              <option value="g-2">g-2 (small)</option>
+              <option value="g-3" selected>g-3 (medium)</option>
+              <option value="g-4">g-4 (large)</option>
+            </select>
+          </div>
+        </div>
+        <div id="gridOutput" class="grid-output container-fluid p-0"></div>
+        <div class="grid-code" id="gridCode"></div>
+      </div>
+    </div>
+
+    <div class="block reveal">
+      <div class="block-tag">Live Components</div>
+      <h2 class="block-title">Bootstrap Components</h2>
+      <p class="block-body" style="margin-bottom:24px;">These are <strong>real Bootstrap 5 components</strong> rendered using the CDN. Click the tabs to switch between demos:</p>
+      <div class="interactive-label">All Bootstrap — loaded from CDN, no custom CSS</div>
+      <div style="border:1px solid var(--border);">
+        <div class="comp-tabs">
+          <button class="comp-tab active" onclick="showComp('navbar')">Navbar</button>
+          <button class="comp-tab" onclick="showComp('cards')">Cards</button>
+          <button class="comp-tab" onclick="showComp('forms')">Forms</button>
+          <button class="comp-tab" onclick="showComp('alerts')">Alerts</button>
+          <button class="comp-tab" onclick="showComp('modal')">Modal</button>
+        </div>
+        <div class="comp-panel active" id="comp-navbar">
+          <nav class="navbar navbar-expand-lg navbar-dark bg-dark rounded">
+            <div class="container-fluid">
+              <a class="navbar-brand fw-bold" href="#">⊞ MyApp</a>
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navDemo"><span class="navbar-toggler-icon"></span></button>
+              <div class="collapse navbar-collapse" id="navDemo">
+                <ul class="navbar-nav me-auto">
+                  <li class="nav-item"><a class="nav-link active" href="#">Home</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#">Products</a></li>
+                  <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Services</a>
+                    <ul class="dropdown-menu"><li><a class="dropdown-item" href="#">Web Dev</a></li><li><a class="dropdown-item" href="#">Design</a></li></ul>
+                  </li>
+                </ul>
+                <form class="d-flex gap-2"><input class="form-control" type="search" placeholder="Search"><button class="btn btn-outline-light" type="submit">Go</button></form>
+              </div>
+            </div>
+          </nav>
+          <p class="mt-3 text-muted small">Classes used: <code>navbar navbar-expand-lg navbar-dark bg-dark dropdown</code></p>
+        </div>
+        <div class="comp-panel" id="comp-cards">
+          <div class="row g-3">
+            <div class="col-md-4"><div class="card border-primary h-100"><div class="card-header bg-primary text-white fw-bold">Frontend</div><div class="card-body"><h5 class="card-title">HTML & CSS</h5><p class="card-text small">Structure and style of web pages.</p><button class="btn btn-primary btn-sm">Learn More</button></div></div></div>
+            <div class="col-md-4"><div class="card border-success h-100"><div class="card-header bg-success text-white fw-bold">Backend</div><div class="card-body"><h5 class="card-title">PHP & MySQL</h5><p class="card-text small">Server logic and data management.</p><button class="btn btn-success btn-sm">Learn More</button></div></div></div>
+            <div class="col-md-4"><div class="card border-warning h-100"><div class="card-header bg-warning fw-bold">JavaScript</div><div class="card-body"><h5 class="card-title">DOM & Events</h5><p class="card-text small">Dynamic behaviour and interactivity.</p><button class="btn btn-warning btn-sm">Learn More</button></div></div></div>
+          </div>
+          <p class="mt-3 text-muted small">Classes: <code>card card-header card-body card-title card-text border-primary</code></p>
+        </div>
+        <div class="comp-panel" id="comp-forms">
+          <form>
+            <div class="row g-3">
+              <div class="col-md-6"><label class="form-label fw-bold">Full Name</label><input type="text" class="form-control" placeholder="Karun Thapa"></div>
+              <div class="col-md-6"><label class="form-label fw-bold">Email</label><input type="email" class="form-control" placeholder="karun@example.com"></div>
+              <div class="col-md-4"><label class="form-label fw-bold">Course</label><select class="form-select"><option>Full Stack</option><option>Frontend</option><option>Backend</option></select></div>
+              <div class="col-md-4"><label class="form-label fw-bold">Level</label><select class="form-select"><option>Beginner</option><option selected>Intermediate</option><option>Advanced</option></select></div>
+              <div class="col-md-4"><label class="form-label fw-bold">Start Date</label><input type="date" class="form-control"></div>
+              <div class="col-12"><div class="form-check"><input class="form-check-input" type="checkbox" id="agree"><label class="form-check-label" for="agree">I agree to the terms</label></div></div>
+              <div class="col-12"><button type="submit" class="btn btn-primary me-2">Register</button><button type="reset" class="btn btn-outline-secondary">Reset</button></div>
+            </div>
+          </form>
+        </div>
+        <div class="comp-panel" id="comp-alerts">
+          <div class="alert alert-primary" role="alert">📘 <strong>Info:</strong> Bootstrap includes 8 contextual alert styles.</div>
+          <div class="alert alert-success" role="alert">✅ <strong>Success!</strong> Your form was submitted successfully.</div>
+          <div class="alert alert-warning alert-dismissible fade show" role="alert">⚠️ <strong>Warning:</strong> This action cannot be undone.<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+          <div class="alert alert-danger" role="alert">❌ <strong>Error:</strong> Connection to database failed.</div>
+          <div class="d-flex gap-2 flex-wrap mt-3">
+            <span class="badge bg-primary">HTML</span>
+            <span class="badge bg-success">CSS</span>
+            <span class="badge bg-danger">JS</span>
+            <span class="badge bg-warning text-dark">Bootstrap</span>
+            <span class="badge bg-info">PHP</span>
+            <span class="badge bg-secondary">MySQL</span>
+          </div>
+          <div class="mt-3">
+            <div class="progress mb-2" style="height:10px;"><div class="progress-bar bg-primary" style="width:90%">HTML 90%</div></div>
+            <div class="progress mb-2" style="height:10px;"><div class="progress-bar bg-success" style="width:85%">CSS 85%</div></div>
+            <div class="progress" style="height:10px;"><div class="progress-bar bg-warning" style="width:75%">JS 75%</div></div>
+          </div>
+        </div>
+        <div class="comp-panel" id="comp-modal">
+          <p>Bootstrap modals are triggered by JavaScript. Click the button below:</p>
+          <button type="button" class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#demoModal">Open Modal</button>
+          <div class="modal fade" id="demoModal" tabindex="-1">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header"><h5 class="modal-title fw-bold">Bootstrap Modal</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                  <p>This modal was triggered with <code>data-bs-toggle="modal"</code> — zero JavaScript required! Bootstrap's JS bundle handles it automatically.</p>
+                  <p class="text-muted small mt-2">Modals support headers, footers, scrollable content, static backdrops, and centred placement.</p>
+                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button><button type="button" class="btn btn-primary">Confirm</button></div>
+              </div>
+            </div>
+          </div>
+          <p class="mt-3 text-muted small">Zero custom JS needed — Bootstrap CDN bundle handles all modal behaviour.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="block reveal">
+      <div class="block-tag">Utility Classes</div>
+      <h2 class="block-title">Bootstrap Utilities</h2>
+      <p class="block-body" style="margin-bottom:20px;">Hover any utility class to see what it does — these are the building blocks of Bootstrap layout:</p>
+      <div class="interactive-label">Hover to learn — hundreds of utilities available</div>
+      <div class="utility-grid" id="utilGrid"></div>
+      <div class="util-output" id="utilOutput">↑ Hover a class above to see its CSS equivalent</div>
+    </div>
+
+    <div class="block reveal">
+      <div class="block-tag">Comparison</div>
+      <h2 class="block-title">Bootstrap vs Custom CSS</h2>
+      <table class="styled-table">
+        <thead><tr><th>Scenario</th><th>Bootstrap</th><th>Custom CSS</th></tr></thead>
+        <tbody>
+          <tr><td>Speed of prototyping</td><td style="color:#50fa7b;">✔ Very fast</td><td style="color:#ff5f57;">✘ Slower</td></tr>
+          <tr><td>Pixel-perfect design control</td><td style="color:#ff5f57;">✘ Constrained</td><td style="color:#50fa7b;">✔ Full control</td></tr>
+          <tr><td>Cross-browser consistency</td><td style="color:#50fa7b;">✔ Built-in</td><td style="color:#f1fa8c;">~ Manual effort</td></tr>
+          <tr><td>CSS file size</td><td style="color:#ff5f57;">✘ ~22KB min</td><td style="color:#50fa7b;">✔ As small as needed</td></tr>
+          <tr><td>Responsive grid system</td><td style="color:#50fa7b;">✔ 12-col built-in</td><td style="color:#f1fa8c;">~ Write yourself</td></tr>
+          <tr><td>Component library</td><td style="color:#50fa7b;">✔ 30+ components</td><td style="color:#ff5f57;">✘ Build from scratch</td></tr>
+          <tr><td>Learning curve</td><td style="color:#50fa7b;">✔ Shallow (class-based)</td><td style="color:#f1fa8c;">~ Requires deep CSS knowledge</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+  <div class="page-nav">
+    <a href="css.html">← CSS</a>
+    <a href="javascript.html" class="next">JavaScript →</a>
+  </div>
+  <footer>
+    <span class="footer-text">© 2025–26 Karun Thapa</span>
+    <span class="footer-text">Chapter 04 — Bootstrap</span>
+  </footer>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+const cursor=document.getElementById('cursor'),ring=document.getElementById('cursor-ring');
+document.addEventListener('mousemove',e=>{cursor.style.left=e.clientX+'px';cursor.style.top=e.clientY+'px';setTimeout(()=>{ring.style.left=e.clientX+'px';ring.style.top=e.clientY+'px';},80);});
+window.addEventListener('load',()=>{setTimeout(()=>{document.getElementById('loader').classList.add('hidden');initReveal();buildGrid();buildUtilGrid();},2600);});
+function initReveal(){const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});},{threshold:0.1});document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));document.querySelectorAll('.reveal').forEach(el=>{const r=el.getBoundingClientRect();if(r.top<window.innerHeight)el.classList.add('visible');});}
+
+function showComp(id){
+  document.querySelectorAll('.comp-tab,.comp-panel').forEach(el=>el.classList.remove('active'));
+  document.getElementById('comp-'+id).classList.add('active');
+  document.querySelector(`.comp-tab[onclick="showComp('${id}')"]`).classList.add('active');
+}
+
+function buildGrid(){
+  const cols=parseInt(document.getElementById('gcCols').value);
+  const brk=document.getElementById('gcBreak').value;
+  const gut=document.getElementById('gcGutter').value;
+  const colClass=brk?`col-12 col-${brk}-${12/cols}`:`col-${12/cols}`;
+  const out=document.getElementById('gridOutput');
+  let html=`<div class="row ${gut}">`;
+  for(let i=1;i<=cols;i++)html+=`<div class="${colClass}"><div class="gc-item" style="background:rgba(124,77,255,${0.1+i*0.05});border:1px solid rgba(124,77,255,0.5);">col ${i}</div></div>`;
+  html+='</div>';
+  out.innerHTML=html;
+  document.getElementById('gridCode').textContent=`<div class="row ${gut}">\n  <div class="${colClass}">Column</div>\n  <!-- × ${cols} -->\n</div>`;
+}
+
+// UTILITY GRID
+const utils=[
+  {cls:'d-flex',css:'display: flex'},
+  {cls:'d-none',css:'display: none'},
+  {cls:'d-block',css:'display: block'},
+  {cls:'text-center',css:'text-align: center'},
+  {cls:'text-end',css:'text-align: right'},
+  {cls:'fw-bold',css:'font-weight: 700'},
+  {cls:'fs-1',css:'font-size: 2.5rem'},
+  {cls:'mt-3',css:'margin-top: 1rem'},
+  {cls:'mb-4',css:'margin-bottom: 1.5rem'},
+  {cls:'px-4',css:'padding-left: 1.5rem;\npadding-right: 1.5rem'},
+  {cls:'p-3',css:'padding: 1rem'},
+  {cls:'rounded',css:'border-radius: 0.375rem'},
+  {cls:'rounded-circle',css:'border-radius: 50%'},
+  {cls:'shadow',css:'box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)'},
+  {cls:'shadow-lg',css:'box-shadow: 0 1rem 3rem rgba(0,0,0,.175)'},
+  {cls:'border',css:'border: 1px solid #dee2e6'},
+  {cls:'border-primary',css:'border-color: #0d6efd !important'},
+  {cls:'bg-primary',css:'background-color: #0d6efd !important'},
+  {cls:'bg-dark',css:'background-color: #212529 !important'},
+  {cls:'text-white',css:'color: #fff !important'},
+  {cls:'text-muted',css:'color: #6c757d !important'},
+  {cls:'w-100',css:'width: 100%'},
+  {cls:'h-100',css:'height: 100%'},
+  {cls:'position-relative',css:'position: relative'},
+  {cls:'overflow-hidden',css:'overflow: hidden'},
+  {cls:'justify-content-between',css:'justify-content: space-between'},
+  {cls:'align-items-center',css:'align-items: center'},
+  {cls:'gap-3',css:'gap: 1rem'},
+  {cls:'flex-wrap',css:'flex-wrap: wrap'},
+  {cls:'ms-auto',css:'margin-left: auto'},
+];
+function buildUtilGrid(){
+  const grid=document.getElementById('utilGrid');
+  utils.forEach(u=>{
+    const chip=document.createElement('div');
+    chip.className='util-chip';
+    chip.textContent=u.cls;
+    chip.addEventListener('mouseenter',()=>{
+      document.getElementById('utilOutput').innerHTML=`<span style="color:var(--accent);">.${u.cls}</span> {<br>&nbsp;&nbsp;${u.css.replace(/\n/g,'<br>&nbsp;&nbsp;')}<br>}`;
+    });
+    grid.appendChild(chip);
+  });
+}
+</script>
+</body>
+</html>

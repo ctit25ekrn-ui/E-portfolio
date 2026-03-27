@@ -1,0 +1,1638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JavaScript — Karun Thapa</title>
+<style>
+/* Base Styles - Light Theme */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background: #fefcf8;
+  color: #1a1a1a;
+  font-family: 'Times New Roman', Times, serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* Background Overlay - Light */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  z-index:0;
+  background-image:url('https://images.unsplash.com/photo-1571171637578-41bc2dd41cd2?w=1920&q=80&auto=format&fit=crop');
+  background-size:cover;
+  background-position:center;
+  background-attachment:fixed;
+  filter:brightness(0.98) saturate(0.6) blur(1px);
+  pointer-events:none;
+  opacity:0.08;
+}
+#loader,#sidebar,#main{position:relative;z-index:1;}
+
+/* Custom Cursor - Light Version */
+#cursor{
+  position:fixed;
+  top:0;
+  left:0;
+  z-index:99999;
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:#b87c4f;
+  pointer-events:none;
+  transform:translate(-50%,-50%);
+  mix-blend-mode:multiply;
+}
+#cursor-ring{
+  position:fixed;
+  top:0;
+  left:0;
+  z-index:99998;
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  border:1px solid #b87c4f;
+  pointer-events:none;
+  transform:translate(-50%,-50%);
+  transition:transform 0.15s ease;
+  opacity:0.4;
+}
+
+/* Loader - Light Theme */
+#loader{
+  position:fixed;
+  inset:0;
+  background:#fefcf8;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  z-index:10000;
+  transition:opacity .8s ease,visibility .8s ease;
+}
+#loader.hidden{opacity:0;visibility:hidden;}
+.loader-sigil{
+  font-family:'Times New Roman', Times, serif;
+  font-size:80px;
+  color:#b87c4f;
+  letter-spacing:8px;
+  font-weight:bold;
+  animation:sigilPulse 2s ease-in-out infinite;
+}
+@keyframes sigilPulse{
+  0%,100%{opacity:0.5;text-shadow:0 0 20px #e6ccb3;}
+  50%{opacity:1;text-shadow:0 0 40px #d4a373;}
+}
+.loader-line{
+  font-family:'Times New Roman', Times, serif;
+  font-size:12px;
+  color:#8b7355;
+  letter-spacing:2px;
+  margin-top:16px;
+  overflow:hidden;
+  white-space:nowrap;
+  border-right:1px solid #b87c4f;
+  width:0;
+  animation:fadeTypeIn 1.4s ease forwards;
+}
+@keyframes fadeTypeIn{to{width:100%;}}
+.loader-progress{
+  width:200px;
+  height:2px;
+  background:#e8e0d5;
+  margin-top:24px;
+  overflow:hidden;
+}
+.loader-fill{
+  height:100%;
+  width:0;
+  background:linear-gradient(90deg, #c97e5a, #e6b17e);
+  animation:fillBar 2.2s ease forwards;
+}
+@keyframes fillBar{to{width:100%;}}
+
+/* Sidebar Navigation - Light */
+#sidebar{
+  position:fixed;
+  top:0;
+  left:0;
+  bottom:0;
+  width:240px;
+  background:rgba(255,252,245,0.96);
+  border-right:1px solid #e8e0d5;
+  backdrop-filter:blur(12px);
+  display:flex;
+  flex-direction:column;
+  z-index:500;
+  padding:40px 0;
+  transform:translateX(-200px);
+  transition:transform 0.4s cubic-bezier(0.4,0,0.2,1);
+  box-shadow:2px 0 15px rgba(0,0,0,0.03);
+}
+#sidebar:hover{transform:translateX(0);}
+.sidebar-toggle{
+  position:absolute;
+  right:-20px;
+  top:50%;
+  transform:translateY(-50%);
+  width:20px;
+  height:70px;
+  background:#e8e0d5;
+  border:1px solid #dcd0c0;
+  border-left:none;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:none;
+  font-size:9px;
+  color:#b87c4f;
+  border-radius:0 6px 6px 0;
+  writing-mode:vertical-lr;
+  letter-spacing:2px;
+  font-family:'Times New Roman', Times, serif;
+  font-weight:bold;
+}
+.sidebar-logo{
+  padding:0 24px 32px;
+  border-bottom:1px solid #e8e0d5;
+  margin-bottom:20px;
+}
+.logo-mark{
+  font-family:'Times New Roman', Times, serif;
+  font-size:32px;
+  color:#b87c4f;
+  letter-spacing:2px;
+  display:block;
+  font-weight:bold;
+}
+.logo-sub{
+  font-family:'Times New Roman', Times, serif;
+  font-size:10px;
+  color:#9b8a74;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  margin-top:6px;
+}
+.nav-link{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:14px 24px;
+  font-family:'Times New Roman', Times, serif;
+  font-size:12px;
+  color:#7a6a58;
+  text-decoration:none;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  border-left:2px solid transparent;
+  transition:all 0.25s ease;
+  cursor:none;
+}
+.nav-link:hover,.nav-link.active{
+  color:#b87c4f;
+  border-left-color:#b87c4f;
+  background:rgba(184,124,79,0.05);
+}
+
+/* Main Content - Full Width */
+#main{
+  margin-left:40px;
+  width:calc(100% - 40px);
+}
+
+/* Page Hero - Full Width */
+.page-hero{
+  position:relative;
+  height:380px;
+  display:flex;
+  align-items:flex-end;
+  overflow:hidden;
+}
+.page-hero-bg{
+  position:absolute;
+  inset:0;
+  background-image:url('https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1920&q=80&auto=format&fit=crop');
+  background-size:cover;
+  background-position:center;
+  filter:brightness(0.92) sepia(0.1);
+  animation:slowZoom 20s ease-in-out infinite alternate;
+}
+@keyframes slowZoom{to{transform:scale(0.98);}}
+.page-hero-overlay{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(to top, #fefcf8 15%, transparent 80%);
+}
+.page-hero-content{
+  position:relative;
+  z-index:2;
+  padding:40px 80px;
+  width:100%;
+}
+.page-chapter{
+  font-family:'Times New Roman', Times, serif;
+  font-size:12px;
+  color:#b87c4f;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  margin-bottom:12px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.page-chapter::before{
+  content:'';
+  display:inline-block;
+  width:30px;
+  height:1px;
+  background:#b87c4f;
+}
+.page-title{
+  font-family:'Times New Roman', Times, serif;
+  font-size:clamp(56px,8vw,90px);
+  color:#2c241a;
+  letter-spacing:1px;
+  line-height:0.9;
+  font-weight:bold;
+}
+.page-subtitle{
+  font-family:'Times New Roman', Times, serif;
+  font-style:italic;
+  font-size:18px;
+  color:#7a6a58;
+  margin-top:12px;
+}
+
+/* Content Area - Full Width */
+.content{
+  padding:60px 80px;
+  max-width:100%;
+}
+.block{margin-bottom:72px;}
+.block-tag{
+  display:inline-block;
+  font-family:'Times New Roman', Times, serif;
+  font-size:11px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:#b87c4f;
+  border:1px solid #e8e0d5;
+  padding:4px 14px;
+  margin-bottom:16px;
+  background:#ffffff;
+}
+.block-title{
+  font-family:'Times New Roman', Times, serif;
+  font-size:clamp(32px,4vw,48px);
+  color:#2c241a;
+  letter-spacing:0px;
+  line-height:1.2;
+  margin-bottom:20px;
+  font-weight:bold;
+}
+.block-body{
+  font-family:'Times New Roman', Times, serif;
+  font-size:17px;
+  color:#3a3228;
+  line-height:1.8;
+  max-width:90%;
+}
+.block-body strong{color:#b87c4f;}
+.block-body code{
+  font-family:'Times New Roman', Times, serif;
+  font-size:14px;
+  color:#c97e5a;
+  background:rgba(184,124,79,0.08);
+  padding:2px 6px;
+  border-radius:2px;
+}
+
+/* Code Block - Light */
+.code-block{
+  background:#ffffff;
+  border:1px solid #e8e0d5;
+  margin:28px 0;
+  overflow:hidden;
+  border-radius:4px;
+}
+.code-block-header{
+  background:#faf7f2;
+  border-bottom:1px solid #e8e0d5;
+  padding:10px 20px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.cbt{
+  font-family:'Times New Roman', Times, serif;
+  font-size:11px;
+  color:#7a6a58;
+  flex:1;
+}
+.cbl{
+  font-family:'Times New Roman', Times, serif;
+  font-size:10px;
+  color:#b87c4f;
+  border:1px solid #e8e0d5;
+  padding:2px 8px;
+  background:#ffffff;
+}
+.code-block-body{
+  display:flex;
+  overflow-x:auto;
+}
+.line-nums{
+  padding:14px 12px;
+  background:#faf7f2;
+  border-right:1px solid #e8e0d5;
+  text-align:right;
+  min-width:44px;
+  flex-shrink:0;
+  user-select:none;
+}
+.line-nums span{
+  display:block;
+  font-family:'Times New Roman', Times, serif;
+  font-size:11px;
+  color:#cbbfaf;
+  line-height:1.75;
+}
+.code-content{
+  padding:14px 22px;
+  font-family:'Times New Roman', Times, serif;
+  font-size:12px;
+  line-height:1.75;
+  white-space:pre;
+  flex:1;
+  color:#2c241a;
+}
+.kw{color:#b87c4f;font-weight:bold;}
+.fn{color:#c97e5a;}
+.str{color:#b87c4f;}
+.com{color:#b8aa98;font-style:italic;}
+.cls{color:#b87c4f;}
+.prop{color:#8b7355;}
+.num{color:#b87c4f;}
+.var{color:#b87c4f;}
+
+/* Interactive Elements */
+.interactive-label{
+  font-family:'Times New Roman', Times, serif;
+  font-size:11px;
+  color:#b87c4f;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  margin-bottom:16px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.interactive-label::before{
+  content:'●';
+  color:#b87c4f;
+  animation:blink 1s step-end infinite;
+}
+@keyframes blink{50%{opacity:0;}}
+
+/* Concept Grid */
+.concept-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:24px;
+  margin-top:24px;
+}
+.concept-card{
+  background:#ffffff;
+  padding:28px;
+  transition:all 0.3s;
+  border:1px solid #e8e0d5;
+  border-radius:4px;
+}
+.concept-card:hover{
+  background:#fefaf5;
+  transform:translateY(-2px);
+  box-shadow:0 8px 20px rgba(0,0,0,0.05);
+}
+.concept-num{
+  font-family:'Times New Roman', Times, serif;
+  font-size:48px;
+  color:#e8e0d5;
+  line-height:1;
+  margin-bottom:8px;
+  font-weight:bold;
+}
+.concept-title{
+  font-family:'Times New Roman', Times, serif;
+  font-size:22px;
+  letter-spacing:0px;
+  color:#b87c4f;
+  margin-bottom:10px;
+  font-weight:bold;
+}
+.concept-body{
+  font-family:'Times New Roman', Times, serif;
+  font-size:12px;
+  color:#7a6a58;
+  line-height:1.9;
+}
+
+/* Console - Light */
+.console-wrap{
+  background:#ffffff;
+  border:1px solid #e8e0d5;
+  overflow:hidden;
+  margin-top:20px;
+  border-radius:4px;
+}
+.console-header{
+  background:#faf7f2;
+  border-bottom:1px solid #e8e0d5;
+  padding:10px 16px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.console-dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+}
+.console-title{
+  font-family:'Times New Roman', Times, serif;
+  font-size:11px;
+  color:#7a6a58;
+  margin-left:8px;
+}
+.console-output{
+  font-family:'Times New Roman', Times, serif;
+  font-size:12px;
+  line-height:2;
+  padding:16px 20px;
+  min-height:100px;
+  max-height:200px;
+  overflow-y:auto;
+  color:#2c241a;
+  background:#fefaf5;
+}
+.console-input-row{
+  display:flex;
+  border-top:1px solid #e8e0d5;
+}
+.console-prompt{
+  padding:12px;
+  font-family:'Times New Roman', Times, serif;
+  font-size:12px;
+  color:#b87c4f;
+  background:#faf7f2;
+  flex-shrink:0;
+}
+.console-input{
+  flex:1;
+  background:#ffffff;
+  border:none;
+  outline:none;
+  font-family:'Times New Roman', Times, serif;
+  font-size:12px;
+  padding:12px;
+  color:#2c241a;
+}
+.console-run{
+  padding:12px 20px;
+  background:#faf7f2;
+  border:none;
+  border-left:1px solid #e8e0d5;
+  color:#b87c4f;
+  font-family:'Times New Roman', Times, serif;
+  font-size:11px;
+  cursor:pointer;
+  transition:all 0.2s;
+}
+.console-run:hover{
+  background:#e8e0d5;
+  color:#c97e5a;
+}
+.console-err{color:#ff5555;}
+.console-info{color:#b87c4f;}
+
+/* DOM Demo - Light */
+.dom-demo-area{
+  background:#ffffff;
+  border:1px solid #e8e0d5;
+  padding:24px;
+  margin-top:20px;
+  border-radius:4px;
+}
+.dom-element{
+  border:1px dashed rgba(184,124,79,0.3);
+  padding:14px 20px;
+  margin:8px 0;
+  font-family:'Times New Roman', Times, serif;
+  font-size:12px;
+  transition:all 0.3s;
+  border-radius:3px;
+}
+.dom-element:hover{
+  border-color:#b87c4f;
+  background:#fefaf5;
+}
+.dom-element .tag-label{
+  color:#b87c4f;
+  font-size:10px;
+  letter-spacing:1px;
+}
+.dom-controls{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:20px;
+}
+.dom-btn{
+  font-family:'Times New Roman', Times, serif;
+  font-size:10px;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  padding:8px 16px;
+  border:1px solid #e8e0d5;
+  background:#ffffff;
+  color:#7a6a58;
+  cursor:pointer;
+  transition:all 0.2s;
+  border-radius:3px;
+}
+.dom-btn:hover{
+  border-color:#b87c4f;
+  color:#b87c4f;
+  background:#fefaf5;
+}
+.dom-output{
+  font-family:'Times New Roman', Times, serif;
+  font-size:11px;
+  color:#b87c4f;
+  background:#fefaf5;
+  border:1px solid #e8e0d5;
+  padding:10px 14px;
+  margin-top:10px;
+  border-radius:3px;
+}
+
+/* Pixel Art - Light */
+.pixel-wrap{
+  background:#ffffff;
+  border:1px solid #e8e0d5;
+  padding:24px;
+  margin-top:20px;
+  border-radius:4px;
+}
+.pixel-toolbar{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:12px;
+  margin-bottom:16px;
+}
+.px-color-btn{
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  border:2px solid transparent;
+  cursor:pointer;
+  transition:transform 0.2s, border-color 0.2s;
+}
+.px-color-btn.active{
+  border-color:#2c241a;
+  transform:scale(1.2);
+}
+.px-tool-btn{
+  font-family:'Times New Roman', Times, serif;
+  font-size:10px;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  padding:6px 12px;
+  border:1px solid #e8e0d5;
+  background:#ffffff;
+  color:#7a6a58;
+  cursor:pointer;
+  transition:all 0.2s;
+  border-radius:3px;
+}
+.px-tool-btn:hover,.px-tool-btn.active{
+  border-color:#b87c4f;
+  color:#b87c4f;
+}
+#pixelCanvas{
+  display:grid;
+  border:1px solid #e8e0d5;
+  width:fit-content;
+  user-select:none;
+}
+.px-cell{
+  width:20px;
+  height:20px;
+  background:#1a1a1a;
+  border:1px solid rgba(0,0,0,0.04);
+  cursor:pointer;
+  transition:background 0.05s;
+}
+
+/* Typing Test - Light */
+.typing-wrap{
+  background:#ffffff;
+  border:1px solid #e8e0d5;
+  padding:28px;
+  margin-top:20px;
+  border-radius:4px;
+}
+.typing-prompt{
+  font-family:'Times New Roman', Times, serif;
+  font-size:18px;
+  line-height:1.8;
+  color:#7a6a58;
+  padding:20px;
+  background:#fefaf5;
+  border:1px solid #e8e0d5;
+  margin-bottom:16px;
+  position:relative;
+  overflow:hidden;
+  border-radius:3px;
+}
+.typing-prompt .correct{color:#50fa7b;}
+.typing-prompt .wrong{color:#ff5555;background:rgba(255,85,85,0.1);}
+.typing-input{
+  width:100%;
+  background:#fefaf5;
+  border:1px solid #e8e0d5;
+  outline:none;
+  padding:14px 18px;
+  font-family:'Times New Roman', Times, serif;
+  font-size:14px;
+  color:#2c241a;
+  transition:border-color 0.2s;
+  border-radius:3px;
+}
+.typing-input:focus{border-color:#b87c4f;}
+.typing-stats{
+  display:flex;
+  gap:32px;
+  margin-top:16px;
+  flex-wrap:wrap;
+}
+.ts-stat{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.ts-val{
+  font-family:'Times New Roman', Times, serif;
+  font-size:32px;
+  color:#b87c4f;
+  line-height:1;
+  font-weight:bold;
+}
+.ts-label{
+  font-family:'Times New Roman', Times, serif;
+  font-size:10px;
+  color:#9b8a74;
+  letter-spacing:1px;
+  text-transform:uppercase;
+}
+.typing-btn{
+  font-family:'Times New Roman', Times, serif;
+  font-size:10px;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  padding:8px 20px;
+  border:1px solid #e8e0d5;
+  background:#ffffff;
+  color:#7a6a58;
+  cursor:pointer;
+  margin-top:14px;
+  transition:all 0.2s;
+  border-radius:3px;
+}
+.typing-btn:hover{
+  border-color:#b87c4f;
+  color:#b87c4f;
+  background:#fefaf5;
+}
+
+/* Password Strength - Light */
+.pwd-wrap{
+  background:#ffffff;
+  border:1px solid #e8e0d5;
+  padding:28px;
+  margin-top:20px;
+  border-radius:4px;
+}
+.pwd-input-row{
+  position:relative;
+  display:flex;
+  align-items:center;
+}
+.pwd-input{
+  width:100%;
+  background:#fefaf5;
+  border:1px solid #e8e0d5;
+  padding:14px 50px 14px 18px;
+  font-family:'Times New Roman', Times, serif;
+  font-size:14px;
+  color:#2c241a;
+  outline:none;
+  transition:border-color 0.3s;
+  border-radius:3px;
+}
+.pwd-input:focus{border-color:#b87c4f;}
+.pwd-eye{
+  position:absolute;
+  right:14px;
+  font-size:18px;
+  cursor:pointer;
+  color:#7a6a58;
+  transition:color 0.2s;
+}
+.pwd-eye:hover{color:#b87c4f;}
+.pwd-meter-bars{
+  display:flex;
+  gap:4px;
+  margin-top:14px;
+}
+.pwd-bar{
+  height:4px;
+  flex:1;
+  background:#e8e0d5;
+  transition:background 0.4s, transform 0.3s;
+}
+.pwd-score-label{
+  font-family:'Times New Roman', Times, serif;
+  font-size:28px;
+  color:#b87c4f;
+  margin-top:12px;
+  font-weight:bold;
+}
+.pwd-criteria{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin-top:16px;
+}
+.pwd-criterion{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-family:'Times New Roman', Times, serif;
+  font-size:11px;
+  color:#7a6a58;
+  transition:color 0.3s;
+}
+.pwd-criterion .crit-icon{font-size:14px;min-width:18px;}
+.pwd-criterion.met{color:#2c241a;}
+.pwd-criterion.met .crit-icon{color:#50fa7b;}
+.pwd-crack-time{
+  font-family:'Times New Roman', Times, serif;
+  font-size:11px;
+  color:#7a6a58;
+  margin-top:14px;
+  padding:12px 16px;
+  background:#fefaf5;
+  border:1px solid #e8e0d5;
+  line-height:1.9;
+  border-radius:3px;
+}
+
+/* Async Demo - Light */
+.async-wrap{
+  background:#ffffff;
+  border:1px solid #e8e0d5;
+  padding:28px;
+  margin-top:20px;
+  border-radius:4px;
+}
+.async-stage{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin-bottom:20px;
+}
+.async-task{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  padding:12px 18px;
+  background:#fefaf5;
+  border:1px solid #e8e0d5;
+  font-family:'Times New Roman', Times, serif;
+  font-size:12px;
+  color:#7a6a58;
+  transition:all 0.4s;
+  border-radius:3px;
+}
+.async-task.running{
+  border-color:#b87c4f;
+  color:#b87c4f;
+  background:rgba(184,124,79,0.05);
+}
+.async-task.done{
+  border-color:#50fa7b;
+  color:#50fa7b;
+  background:rgba(80,250,123,0.05);
+}
+.async-task.failed{
+  border-color:#ff5555;
+  color:#ff5555;
+}
+.async-task-dot{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:#e8e0d5;
+  flex-shrink:0;
+  transition:all 0.3s;
+}
+.async-task.running .async-task-dot{
+  background:#b87c4f;
+  animation:asyncPulse 0.6s ease-in-out infinite;
+}
+.async-task.done .async-task-dot{background:#50fa7b;}
+@keyframes asyncPulse{
+  0%,100%{transform:scale(1);}
+  50%{transform:scale(1.5);}
+}
+.async-log{
+  background:#fefaf5;
+  border:1px solid #e8e0d5;
+  padding:14px;
+  font-family:'Times New Roman', Times, serif;
+  font-size:11px;
+  color:#50fa7b;
+  min-height:100px;
+  max-height:160px;
+  overflow-y:auto;
+  line-height:2;
+  border-radius:3px;
+}
+.async-btn{
+  font-family:'Times New Roman', Times, serif;
+  font-size:10px;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  padding:10px 24px;
+  border:1px solid #b87c4f;
+  background:rgba(184,124,79,0.08);
+  color:#b87c4f;
+  cursor:pointer;
+  transition:all 0.2s;
+  margin-top:14px;
+  border-radius:3px;
+}
+.async-btn:hover{
+  background:rgba(184,124,79,0.18);
+}
+.async-btn:disabled{
+  opacity:0.4;
+  cursor:not-allowed;
+}
+
+/* Table Styles */
+.styled-table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:20px;
+}
+.styled-table th{
+  background:#faf7f2;
+  padding:12px 18px;
+  font-family:'Times New Roman', Times, serif;
+  font-size:12px;
+  color:#b87c4f;
+  letter-spacing:1px;
+  text-align:left;
+  border-bottom:2px solid #b87c4f;
+  border-top:1px solid #e8e0d5;
+}
+.styled-table td{
+  padding:12px 18px;
+  border-bottom:1px solid #e8e0d5;
+  font-family:'Times New Roman', Times, serif;
+  font-size:12px;
+  color:#5e5242;
+}
+.styled-table tr:hover td{
+  background:#fefaf5;
+  color:#2c241a;
+}
+
+/* Page Navigation */
+.page-nav{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:48px 80px;
+  border-top:1px solid #e8e0d5;
+  flex-wrap:wrap;
+  gap:16px;
+}
+.page-nav a{
+  font-family:'Times New Roman', Times, serif;
+  font-size:12px;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  color:#7a6a58;
+  text-decoration:none;
+  padding:12px 28px;
+  border:1px solid #e8e0d5;
+  transition:all 0.3s;
+  cursor:pointer;
+  background:#ffffff;
+  border-radius:3px;
+}
+.page-nav a:hover{
+  border-color:#b87c4f;
+  color:#b87c4f;
+}
+
+/* Footer */
+footer{
+  padding:24px 80px;
+  border-top:1px solid #e8e0d5;
+  display:flex;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:12px;
+  background:#fefcf8;
+}
+.footer-text{
+  font-family:'Times New Roman', Times, serif;
+  font-size:11px;
+  color:#9b8a74;
+  letter-spacing:1px;
+}
+
+/* Reveal Animation */
+.reveal{
+  opacity:0;
+  transform:translateY(24px);
+  transition:opacity 0.7s ease,transform 0.7s ease;
+}
+.reveal.visible{opacity:1;transform:none;}
+
+/* Timeline - Light */
+.timeline{
+  position:relative;
+  padding-left:28px;
+  margin-top:24px;
+}
+.timeline::before{
+  content:'';
+  position:absolute;
+  left:7px;
+  top:8px;
+  bottom:8px;
+  width:1px;
+  background:#e8e0d5;
+}
+.tl-item{
+  position:relative;
+  margin-bottom:36px;
+}
+.tl-dot{
+  position:absolute;
+  left:-28px;
+  top:5px;
+  width:15px;
+  height:15px;
+  border-radius:50%;
+  border:2px solid #b87c4f;
+  background:#ffffff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.tl-dot-inner{
+  width:5px;
+  height:5px;
+  border-radius:50%;
+  background:#b87c4f;
+}
+.tl-year{
+  font-family:'Times New Roman', Times, serif;
+  font-size:10px;
+  color:#b87c4f;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  margin-bottom:4px;
+}
+.tl-title{
+  font-family:'Times New Roman', Times, serif;
+  font-size:22px;
+  letter-spacing:0px;
+  color:#2c241a;
+  margin-bottom:6px;
+  font-weight:bold;
+}
+.tl-body{
+  font-family:'Times New Roman', Times, serif;
+  font-size:12px;
+  color:#7a6a58;
+  line-height:1.9;
+}
+.tl-badge{
+  display:inline-block;
+  font-family:'Times New Roman', Times, serif;
+  font-size:9px;
+  padding:2px 8px;
+  border:1px solid #b87c4f;
+  color:#b87c4f;
+  margin-top:6px;
+  margin-right:4px;
+  border-radius:2px;
+}
+
+/* Responsive */
+@media(max-width:768px){
+  #sidebar{transform:translateX(-240px);}
+  #main{margin-left:0;width:100%;}
+  .page-hero-content,.content{padding:40px 24px;}
+  .page-nav{padding:32px 24px;}
+  footer{padding:20px 24px;}
+  .block-body{max-width:100%;}
+}
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- Loader -->
+<div id="loader">
+  <div class="loader-sigil">JS</div>
+  <div class="loader-line">Loading JavaScript documentation...</div>
+  <div class="loader-progress"><div class="loader-fill"></div></div>
+</div>
+
+<!-- Sidebar Navigation -->
+<nav id="sidebar">
+  <div class="sidebar-toggle">MENU</div>
+  <div class="sidebar-logo">
+    <span class="logo-mark">KARUN</span>
+    <span class="logo-sub">Full Stack Portfolio</span>
+  </div>
+  <a href="index.html" class="nav-link">00 &nbsp;⌂&nbsp; Home</a>
+  <a href="fullstack.html" class="nav-link">01 &nbsp;◈&nbsp; Full Stack</a>
+  <a href="html.html" class="nav-link">02 &nbsp;⟨⟩&nbsp; HTML</a>
+  <a href="css.html" class="nav-link">03 &nbsp;✦&nbsp; CSS</a>
+  <a href="bootstrap.html" class="nav-link">04 &nbsp;⊞&nbsp; Bootstrap</a>
+  <a href="javascript.html" class="nav-link active">05 &nbsp;λ&nbsp; JavaScript</a>
+</nav>
+
+<main id="main">
+
+  <!-- Hero Section -->
+  <div class="page-hero">
+    <div class="page-hero-bg"></div>
+    <div class="page-hero-overlay"></div>
+    <div class="page-hero-content">
+      <div class="page-chapter">Chapter 05 — JavaScript</div>
+      <h1 class="page-title">JAVA<br>SCRIPT</h1>
+      <p class="page-subtitle">The language that makes the web alive.</p>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- What is JavaScript -->
+    <div class="block reveal">
+      <div class="block-tag">Introduction</div>
+      <h2 class="block-title">What is JavaScript?</h2>
+      <div class="block-body">
+        <strong>JavaScript</strong> is a lightweight, interpreted, multi-paradigm programming language that runs natively in every web browser. Unlike HTML (structure) and CSS (style), JavaScript adds <strong>behaviour</strong> — it can respond to user events, modify the page after it loads, communicate with servers, and build entire applications.
+        <br><br>
+        Created in just 10 days in 1995 by Brendan Eich at Netscape, JavaScript has evolved from a simple scripting language into one of the most widely used programming languages on Earth — running in browsers, servers (Node.js), mobile apps, IoT devices, and even space systems.
+      </div>
+    </div>
+
+    <!-- JavaScript History Timeline -->
+    <div class="block reveal">
+      <div class="block-tag">History</div>
+      <h2 class="block-title">The Evolution of JavaScript</h2>
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-dot"><div class="tl-dot-inner"></div></div>
+          <div class="tl-year">1995</div>
+          <div class="tl-title">Birth of JavaScript</div>
+          <div class="tl-body">Brendan Eich creates Mocha (renamed LiveScript, then JavaScript) at Netscape in 10 days. Designed to let web pages respond to clicks and validate forms client-side.</div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot"><div class="tl-dot-inner"></div></div>
+          <div class="tl-year">1997</div>
+          <div class="tl-title">ECMAScript Standard (ES1)</div>
+          <div class="tl-body">JavaScript is standardised as ECMAScript by ECMA International, enabling cross-browser compatibility.</div>
+          <div><span class="tl-badge">ES1</span></div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot"><div class="tl-dot-inner"></div></div>
+          <div class="tl-year">2005</div>
+          <div class="tl-title">Ajax Revolution</div>
+          <div class="tl-body">Ajax enables asynchronous requests. Gmail and Google Maps prove that JS can build rich, desktop-like experiences without full page reloads.</div>
+          <div><span class="tl-badge">XMLHttpRequest</span></div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot"><div class="tl-dot-inner"></div></div>
+          <div class="tl-year">2009</div>
+          <div class="tl-title">Node.js — JavaScript on the Server</div>
+          <div class="tl-body">Ryan Dahl releases Node.js, bringing JavaScript to the backend. One language can now power both the browser and the server.</div>
+          <div><span class="tl-badge">Node.js</span><span class="tl-badge">V8 Engine</span></div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot"><div class="tl-dot-inner"></div></div>
+          <div class="tl-year">2015</div>
+          <div class="tl-title">ES6 / ES2015 — The Modern Era</div>
+          <div class="tl-body">The biggest update to JavaScript ever. Introduces arrow functions, classes, template literals, destructuring, Promises, let/const, and modules.</div>
+          <div><span class="tl-badge">Arrow Functions</span><span class="tl-badge">Promises</span><span class="tl-badge">Classes</span></div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot"><div class="tl-dot-inner"></div></div>
+          <div class="tl-year">2017</div>
+          <div class="tl-title">ES8 — async / await</div>
+          <div class="tl-body">async/await syntax makes asynchronous code read like synchronous code, eliminating "callback hell".</div>
+          <div><span class="tl-badge">async/await</span></div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-dot"><div class="tl-dot-inner"></div></div>
+          <div class="tl-year">2024+</div>
+          <div class="tl-title">JavaScript Today</div>
+          <div class="tl-body">JavaScript powers React, Vue, Angular, Next.js, React Native, and more. It's the most-used language on GitHub for over a decade.</div>
+          <div><span class="tl-badge">React</span><span class="tl-badge">TypeScript</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Core Concepts -->
+    <div class="block reveal">
+      <div class="block-tag">Core Concepts</div>
+      <h2 class="block-title">Key Language Features</h2>
+      <div class="concept-grid">
+        <div class="concept-card"><div class="concept-num">01</div><div class="concept-title">Variables & Types</div><div class="concept-body">let / const (block-scoped), var (function-scoped). Dynamic typing: strings, numbers, booleans, null, undefined, objects, arrays, symbols.</div></div>
+        <div class="concept-card"><div class="concept-num">02</div><div class="concept-title">Functions</div><div class="concept-body">First-class citizens. Function declarations, expressions, arrow functions (=>), higher-order functions (map/filter/reduce).</div></div>
+        <div class="concept-card"><div class="concept-num">03</div><div class="concept-title">DOM Manipulation</div><div class="concept-body">Document Object Model — a live tree of HTML elements. JS can read, modify, add, or remove any node.</div></div>
+        <div class="concept-card"><div class="concept-num">04</div><div class="concept-title">Events</div><div class="concept-body">addEventListener() attaches handlers to any DOM element. Events: click, mouseover, keydown, submit, load, input.</div></div>
+        <div class="concept-card"><div class="concept-num">05</div><div class="concept-title">Promises & Async</div><div class="concept-body">Asynchronous patterns for network requests. Promises, .then().catch(), and async/await for readable async code.</div></div>
+        <div class="concept-card"><div class="concept-num">06</div><div class="concept-title">Fetch API</div><div class="concept-body">Native browser API for HTTP requests. fetch(url).then(r => r.json()) — replaces XMLHttpRequest.</div></div>
+      </div>
+    </div>
+
+    <!-- Modern JavaScript Code Example -->
+    <div class="block reveal">
+      <div class="block-tag">Code Examples</div>
+      <h2 class="block-title">Modern JavaScript Syntax</h2>
+      <div class="code-block">
+        <div class="code-block-header"><span class="cbt">Modern JavaScript — ES6+ Features</span><span class="cbl">ES2015+</span></div>
+        <div class="code-block-body">
+          <div class="line-nums"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span><span>15</span><span>16</span><span>17</span><span>18</span><span>19</span><span>20</span><span>21</span><span>22</span><span>23</span><span>24</span><span>25</span><span>26</span><span>27</span><span>28</span><span>29</span><span>30</span></div>
+          <div class="code-content"><span class="com">// Variables — let and const</span>
+<span class="kw">const</span> <span class="var">name</span> = <span class="str">"Karun"</span>;          <span class="com">// immutable binding</span>
+<span class="kw">let</span>   <span class="var">score</span> = <span class="num">0</span>;              <span class="com">// mutable, block-scoped</span>
+
+<span class="com">// Arrow Functions & Template Literals</span>
+<span class="kw">const</span> <span class="fn">greet</span> = (<span class="var">name</span>) => <span class="str">`Hello, <span class="var">${name}</span>!`</span>;
+<span class="fn">console</span>.<span class="fn">log</span>(<span class="fn">greet</span>(<span class="str">"World"</span>));   <span class="com">// → "Hello, World!"</span>
+
+<span class="com">// Destructuring</span>
+<span class="kw">const</span> [<span class="var">first</span>, <span class="var">second</span>, ...<span class="var">rest</span>] = [<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>, <span class="num">40</span>];
+<span class="kw">const</span> { <span class="var">title</span>, <span class="var">year</span> = <span class="num">2024</span> } = { title: <span class="str">"JavaScript"</span> };
+
+<span class="com">// Spread / Rest Operators</span>
+<span class="kw">const</span> <span class="var">merged</span> = [...[<span class="num">1</span>,<span class="num">2</span>], ...[<span class="num">3</span>,<span class="num">4</span>]];  <span class="com">// [1,2,3,4]</span>
+<span class="kw">const</span> <span class="fn">sum</span> = (...<span class="var">nums</span>) => <span class="var">nums</span>.<span class="fn">reduce</span>((<span class="var">a</span>,<span class="var">b</span>) => <span class="var">a</span>+<span class="var">b</span>, <span class="num">0</span>);
+
+<span class="com">// Async / Await</span>
+<span class="kw">async function</span> <span class="fn">getUser</span>(<span class="var">id</span>) {
+  <span class="kw">try</span> {
+    <span class="kw">const</span> <span class="var">res</span>  = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="str">`/api/users/<span class="var">${id}</span>`</span>);
+    <span class="kw">const</span> <span class="var">data</span> = <span class="kw">await</span> <span class="var">res</span>.<span class="fn">json</span>();
+    <span class="kw">return</span> <span class="var">data</span>;
+  } <span class="kw">catch</span> (<span class="var">err</span>) {
+    <span class="fn">console</span>.<span class="fn">error</span>(<span class="str">"Fetch failed:"</span>, <span class="var">err</span>);
+  }
+}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live JavaScript Console -->
+    <div class="block reveal">
+      <div class="block-tag">Interactive — Live Console</div>
+      <h2 class="block-title">JavaScript REPL Console</h2>
+      <div class="block-body" style="margin-bottom:16px;">
+        Type any JavaScript expression and press <code>Enter</code> or click Run. Try <code>Math.random()</code>, <code>[1,2,3].map(x => x*2)</code>, or <code>new Date().toLocaleString()</code>:
+      </div>
+      <div class="interactive-label">Live REPL — real JavaScript, real results</div>
+      <div class="console-wrap">
+        <div class="console-header">
+          <div class="console-dot" style="background:#ff5f57;"></div>
+          <div class="console-dot" style="background:#febc2e;"></div>
+          <div class="console-dot" style="background:#28c840;"></div>
+          <span class="console-title">JavaScript Console</span>
+        </div>
+        <div class="console-output" id="consoleOutput">
+          <span class="console-info">// JavaScript Console — type expressions below</span><br>
+          <span class="console-info">// Try: typeof "hello" | [1,2,3].reverse() | Object.keys({a:1})</span>
+        </div>
+        <div class="console-input-row">
+          <span class="console-prompt">›</span>
+          <input class="console-input" id="consoleInput" placeholder="Type JS expression..." onkeydown="if(event.key==='Enter')runConsole()">
+          <button class="console-run" onclick="runConsole()">Run ↵</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DOM Manipulation Demo -->
+    <div class="block reveal">
+      <div class="block-tag">Interactive Demo — DOM Manipulation</div>
+      <h2 class="block-title">DOM Manipulation Live</h2>
+      <div class="block-body" style="margin-bottom:20px;">
+        The <strong>Document Object Model</strong> is a live, tree-shaped representation of your HTML page. JavaScript can query, modify, create, or delete any node. Click the buttons below to see DOM operations in real time:
+      </div>
+      <div class="interactive-label">Click buttons to see DOM mutations live</div>
+      <div class="dom-demo-area">
+        <div id="domTree">
+          <div class="dom-element" id="domEl1"><span class="tag-label">&lt;p&gt;</span> Hello, I am a DOM element.</div>
+          <div class="dom-element" id="domEl2"><span class="tag-label">&lt;p&gt;</span> Click the buttons below to manipulate me.</div>
+          <div class="dom-element" id="domEl3"><span class="tag-label">&lt;p&gt;</span> I can be styled, moved, or deleted by JavaScript.</div>
+        </div>
+        <div class="dom-controls">
+          <button class="dom-btn" onclick="domAddElement()">+ Add Element</button>
+          <button class="dom-btn" onclick="domChangeColor()">⬤ Change Color</button>
+          <button class="dom-btn" onclick="domChangeText()">✎ Edit Text</button>
+          <button class="dom-btn" onclick="domRemoveLast()">✕ Remove Last</button>
+          <button class="dom-btn" onclick="domShuffleOrder()">⇅ Shuffle Order</button>
+          <button class="dom-btn" onclick="domReset()">↺ Reset</button>
+        </div>
+        <div class="dom-output" id="domOutput">// DOM output will appear here</div>
+      </div>
+    </div>
+
+    <!-- Typing Speed Test -->
+    <div class="block reveal">
+      <div class="block-tag">Demo — Strings, Events & Timers</div>
+      <h2 class="block-title">Typing Speed Test</h2>
+      <div class="block-body" style="margin-bottom:16px;">
+        This demo uses <strong>string comparison</strong>, <code>Date.now()</code> for timing, <code>setInterval</code> for countdown, and real-time DOM updates:
+      </div>
+      <div class="interactive-label">Type the text below — speed and accuracy tracked live</div>
+      <div class="typing-wrap">
+        <div class="typing-prompt" id="typingPrompt"></div>
+        <input class="typing-input" id="typingInput" placeholder="Click start and begin typing..." oninput="evalTyping()" disabled>
+        <div class="typing-stats">
+          <div class="ts-stat"><span class="ts-val" id="tWpm">0</span><span class="ts-label">WPM</span></div>
+          <div class="ts-stat"><span class="ts-val" id="tAcc">100</span><span class="ts-label">Accuracy %</span></div>
+          <div class="ts-stat"><span class="ts-val" id="tTime">60</span><span class="ts-label">Seconds Left</span></div>
+          <div class="ts-stat"><span class="ts-val" id="tErrors">0</span><span class="ts-label">Errors</span></div>
+        </div>
+        <button class="typing-btn" onclick="startTypingTest()">▶ Start Test</button>
+        <button class="typing-btn" onclick="resetTypingTest()">↺ Reset</button>
+      </div>
+    </div>
+
+    <!-- Password Strength Analyser -->
+    <div class="block reveal">
+      <div class="block-tag">Demo — Regular Expressions</div>
+      <h2 class="block-title">Password Strength Analyser</h2>
+      <div class="block-body" style="margin-bottom:16px;">
+        This demo uses JavaScript <strong>Regular Expressions</strong> to test password criteria, scoring algorithm to calculate entropy, and live DOM updates:
+      </div>
+      <div class="interactive-label">Type a password — strength calculated with regex</div>
+      <div class="pwd-wrap">
+        <div class="pwd-input-row">
+          <input class="pwd-input" id="pwdInput" type="password" placeholder="Type a password..." oninput="analysePwd(this.value)">
+          <span class="pwd-eye" id="pwdEye" onclick="togglePwd()">👁</span>
+        </div>
+        <div class="pwd-meter-bars" id="pwdBars">
+          <div class="pwd-bar"></div><div class="pwd-bar"></div>
+          <div class="pwd-bar"></div><div class="pwd-bar"></div><div class="pwd-bar"></div>
+        </div>
+        <div class="pwd-score-label" id="pwdLabel">Enter a password above</div>
+        <div class="pwd-criteria">
+          <div class="pwd-criterion" id="cLen"><span class="crit-icon">○</span>At least 8 characters long</div>
+          <div class="pwd-criterion" id="cUpper"><span class="crit-icon">○</span>Contains uppercase letter (A–Z)</div>
+          <div class="pwd-criterion" id="cLower"><span class="crit-icon">○</span>Contains lowercase letter (a–z)</div>
+          <div class="pwd-criterion" id="cNum"><span class="crit-icon">○</span>Contains a number (0–9)</div>
+          <div class="pwd-criterion" id="cSpecial"><span class="crit-icon">○</span>Contains special character (!@#$%^&*)</div>
+        </div>
+        <div class="pwd-crack-time" id="pwdCrackTime">Estimated crack time: —</div>
+      </div>
+    </div>
+
+    <!-- Async/Await Visualiser -->
+    <div class="block reveal">
+      <div class="block-tag">Demo — Async/Await Visualiser</div>
+      <h2 class="block-title">Async / Await Task Runner</h2>
+      <div class="block-body" style="margin-bottom:16px;">
+        This visualiser shows how <strong>async/await</strong> and <code>Promise</code>s work. Multiple asynchronous tasks execute concurrently with random delays:
+      </div>
+      <div class="interactive-label">Click Run to see async tasks execute in parallel</div>
+      <div class="async-wrap">
+        <div class="async-stage" id="asyncStage">
+          <div class="async-task" id="aTask0"><span class="async-task-dot"></span><span>Task 1 — Fetch user profile from API</span><span style="margin-left:auto;font-size:10px;" id="aTime0"></span></div>
+          <div class="async-task" id="aTask1"><span class="async-task-dot"></span><span>Task 2 — Query MySQL database for orders</span><span style="margin-left:auto;font-size:10px;" id="aTime1"></span></div>
+          <div class="async-task" id="aTask2"><span class="async-task-dot"></span><span>Task 3 — Send email notification</span><span style="margin-left:auto;font-size:10px;" id="aTime2"></span></div>
+          <div class="async-task" id="aTask3"><span class="async-task-dot"></span><span>Task 4 — Upload image to storage</span><span style="margin-left:auto;font-size:10px;" id="aTime3"></span></div>
+          <div class="async-task" id="aTask4"><span class="async-task-dot"></span><span>Task 5 — Write session to Redis cache</span><span style="margin-left:auto;font-size:10px;" id="aTime4"></span></div>
+        </div>
+        <div class="async-log" id="asyncLog"><span style="color:#7a6a58;">// Press Run to simulate async operations</span></div>
+        <button class="async-btn" id="asyncRunBtn" onclick="runAsyncDemo()">▶ Run Async Demo</button>
+      </div>
+    </div>
+
+    <!-- JavaScript Data Types Table -->
+    <div class="block reveal">
+      <div class="block-tag">Reference</div>
+      <h2 class="block-title">JavaScript Data Types</h2>
+      <table class="styled-table">
+        <thead><tr><th>Type</th><th>Example</th><th>typeof Result</th><th>Notes</th></thead>
+        <tbody>
+          <tr><td><code style="color:#b87c4f">string</code></td><td>"Hello"</td><td>"string"</td><td>Unicode text, immutable</td></tr>
+          <tr><td><code style="color:#b87c4f">number</code></td><td>42 / 3.14 / NaN</td><td>"number"</td><td>Both integers and floats; IEEE 754</td></tr>
+          <tr><td><code style="color:#b87c4f">boolean</code></td><td>true / false</td><td>"boolean"</td><td>Logical truthy/falsy</td></tr>
+          <tr><td><code style="color:#b87c4f">null</code></td><td>null</td><td>"object" ⚠️</td><td>Intentional absence of a value</td></tr>
+          <tr><td><code style="color:#b87c4f">undefined</code></td><td>undefined</td><td>"undefined"</td><td>Variable declared but not assigned</td></tr>
+          <tr><td><code style="color:#b87c4f">object</code></td><td>{name: "Karun"}</td><td>"object"</td><td>Key-value pairs, mutable</td></tr>
+          <tr><td><code style="color:#b87c4f">array</code></td><td>[1, 2, 3]</td><td>"object" ⚠️</td><td>Ordered list; use Array.isArray()</td></tr>
+          <tr><td><code style="color:#b87c4f">function</code></td><td>() => {}</td><td>"function"</td><td>First-class; can be passed/returned</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div><!-- /content -->
+
+  <!-- Page Navigation -->
+  <div class="page-nav">
+    <a href="bootstrap.html">← Bootstrap</a>
+    <span style="font-family:'Times New Roman', Times, serif; font-size:10px; color:#9b8a74;">END OF PORTFOLIO</span>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <span class="footer-text">© 2025–26 Karun Thapa — BSc Full Stack Web Development</span>
+    <span class="footer-text">JavaScript Fundamentals</span>
+  </footer>
+
+</main>
+
+<script>
+// Custom cursor
+const cursor=document.getElementById('cursor'),ring=document.getElementById('cursor-ring');
+document.addEventListener('mousemove',e=>{
+  cursor.style.left=e.clientX+'px';cursor.style.top=e.clientY+'px';
+  setTimeout(()=>{ring.style.left=e.clientX+'px';ring.style.top=e.clientY+'px';},80);
+});
+
+// Hide loader after page loads
+window.addEventListener('load',()=>{
+  setTimeout(()=>{
+    document.getElementById('loader').classList.add('hidden');
+    initReveal();
+    initTypingTest();
+  },2600);
+});
+
+// Scroll reveal animation
+function initReveal(){
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});
+  },{threshold:0.08});
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+  document.querySelectorAll('.reveal').forEach(el=>{
+    if(el.getBoundingClientRect().top<window.innerHeight)el.classList.add('visible');
+  });
+}
+
+// Live Console
+let consoleHistory=[],historyIdx=-1;
+function runConsole(){
+  const input=document.getElementById('consoleInput');
+  const out=document.getElementById('consoleOutput');
+  const code=input.value.trim();
+  if(!code)return;
+  consoleHistory.unshift(code);historyIdx=-1;
+  const inputLine=document.createElement('span');
+  inputLine.innerHTML=`<span style="color:#b87c4f;">›</span> <span style="color:#2c241a;">${escapeHtml(code)}</span>\n`;
+  out.appendChild(inputLine);
+  try{
+    const result=eval(code);
+    const resLine=document.createElement('span');
+    resLine.innerHTML=`<span style="color:#50fa7b;">← ${escapeHtml(String(JSON.stringify(result)??'undefined'))}</span><span style="color:#b8aa98;font-size:10px;"> [${typeof result}]</span>\n`;
+    out.appendChild(resLine);
+  }catch(err){
+    const errLine=document.createElement('span');
+    errLine.style.color='#ff5555';
+    errLine.textContent=`✕ ${err.message}\n`;
+    out.appendChild(errLine);
+  }
+  input.value='';
+  out.scrollTop=out.scrollHeight;
+}
+function escapeHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+// DOM Manipulation Demo
+const domColors=['#b87c4f','#c97e5a','#e6b17e','#8b7355','#b8aa98'];
+let domColorIdx=0;
+const domOriginals=[
+  'Hello, I am a DOM element.',
+  'Click the buttons below to manipulate me.',
+  'I can be styled, moved, or deleted by JavaScript.'
+];
+function domLog(msg){document.getElementById('domOutput').innerHTML=`<span style="color:#b87c4f;">// ${msg}</span>`;}
+function domAddElement(){
+  const tree=document.getElementById('domTree');
+  const el=document.createElement('div');
+  el.className='dom-element';
+  el.innerHTML=`<span class="tag-label">&lt;p&gt;</span> Created by document.createElement()`;
+  tree.appendChild(el);
+  domLog('Created and appended new element');
+}
+function domChangeColor(){
+  const c=domColors[domColorIdx%domColors.length];
+  document.querySelectorAll('.dom-element').forEach(el=>el.style.borderColor=c);
+  domColorIdx++;
+  domLog('Changed all element border colors');
+}
+function domChangeText(){
+  const els=document.querySelectorAll('.dom-element');
+  if(els.length){
+    const randomEl=els[Math.floor(Math.random()*els.length)];
+    const texts=['Modified by JavaScript!','innerHTML updated','textContent changed','DOM manipulation in action'];
+    randomEl.querySelector('.tag-label').nextSibling.textContent=' '+texts[Math.floor(Math.random()*texts.length)];
+    domLog('Modified text content of random element');
+  }
+}
+function domRemoveLast(){
+  const tree=document.getElementById('domTree');
+  if(tree.lastElementChild){
+    tree.removeChild(tree.lastElementChild);
+    domLog('Removed last element');
+  }else{domLog('No elements left to remove');}
+}
+function domShuffleOrder(){
+  const tree=document.getElementById('domTree');
+  const children=[...tree.children];
+  children.sort(()=>Math.random()-0.5);
+  children.forEach(c=>tree.appendChild(c));
+  domLog('Shuffled element order');
+}
+function domReset(){
+  const tree=document.getElementById('domTree');
+  tree.innerHTML=domOriginals.map((t,i)=>`<div class="dom-element"><span class="tag-label">&lt;p&gt;</span> ${t}</div>`).join('');
+  domLog('DOM tree reset to original state');
+}
+
+// Typing Speed Test
+const typingTexts=[
+  "JavaScript is the most popular programming language in the world today.",
+  "A full stack developer builds both the client side and the server side of web applications.",
+  "The document object model represents the page as a tree of objects that JavaScript can manipulate.",
+  "Async and await make asynchronous code look and behave like synchronous code."
+];
+let typingActive=false,typingTimer=null,typingStart=0,typingSeconds=60;
+let typingCurrent='',typingErrors=0;
+function initTypingTest(){renderTypingPrompt();}
+function renderTypingPrompt(){
+  typingCurrent=typingTexts[Math.floor(Math.random()*typingTexts.length)];
+  const prompt=document.getElementById('typingPrompt');
+  prompt.innerHTML=typingCurrent.split('').map((c,i)=>`<span class="typed-char" id="tc${i}">${c==' '?'&nbsp;':escapeHtml(c)}</span>`).join('')+'<span id="tCursor">|</span>';
+  document.getElementById('typingInput').value='';
+  document.getElementById('typingInput').disabled=true;
+}
+function startTypingTest(){
+  typingErrors=0;typingActive=false;
+  if(typingTimer)clearInterval(typingTimer);
+  typingSeconds=60;
+  renderTypingPrompt();
+  document.getElementById('tTime').textContent='60';
+  document.getElementById('tWpm').textContent='0';
+  document.getElementById('tAcc').textContent='100';
+  document.getElementById('tErrors').textContent='0';
+  const input=document.getElementById('typingInput');
+  input.disabled=false;input.value='';input.focus();
+  typingActive=true;
+  typingStart=Date.now();
+  typingTimer=setInterval(()=>{
+    typingSeconds--;
+    document.getElementById('tTime').textContent=typingSeconds;
+    if(typingSeconds<=0){
+      clearInterval(typingTimer);
+      typingActive=false;
+      input.disabled=true;
+    }
+  },1000);
+}
+function evalTyping(){
+  if(!typingActive)return;
+  const input=document.getElementById('typingInput').value;
+  let errors=0;
+  input.split('').forEach((c,i)=>{
+    const span=document.getElementById('tc'+i);
+    if(span){
+      if(c===typingCurrent[i]){span.className='typed-char correct';}
+      else{span.className='typed-char wrong';errors++;}
+    }
+  });
+  typingErrors=errors;
+  const elapsed=(Date.now()-typingStart)/60000;
+  const wpm=Math.round((input.split(' ').length)/Math.max(elapsed,0.01));
+  const acc=input.length?Math.round(((input.length-errors)/input.length)*100):100;
+  document.getElementById('tWpm').textContent=Math.max(0,wpm);
+  document.getElementById('tAcc').textContent=acc;
+  document.getElementById('tErrors').textContent=errors;
+  if(input===typingCurrent){
+    clearInterval(typingTimer);
+    typingActive=false;
+    document.getElementById('typingInput').disabled=true;
+  }
+}
+function resetTypingTest(){
+  if(typingTimer)clearInterval(typingTimer);
+  typingActive=false;
+  renderTypingPrompt();
+  document.getElementById('tTime').textContent='60';
+  document.getElementById('tWpm').textContent='0';
+  document.getElementById('tAcc').textContent='100';
+  document.getElementById('tErrors').textContent='0';
+}
+
+// Password Strength Analyser
+function togglePwd(){
+  const inp=document.getElementById('pwdInput');
+  inp.type=inp.type==='password'?'text':'password';
+}
+function analysePwd(pwd){
+  const criteria={
+    len:pwd.length>=8,
+    upper:/[A-Z]/.test(pwd),
+    lower:/[a-z]/.test(pwd),
+    num:/[0-9]/.test(pwd),
+    special:/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd)
+  };
+  let score=Object.values(criteria).filter(Boolean).length;
+  const bars=document.querySelectorAll('.pwd-bar');
+  const colors=['#ff5555','#ff9800','#f1fa8c','#50fa7b','#b87c4f'];
+  const labels=['Very Weak','Weak','Fair','Strong','Very Strong'];
+  bars.forEach((b,i)=>{b.style.background=i<score?colors[Math.min(score-1,4)]:'#e8e0d5';});
+  const lbl=document.getElementById('pwdLabel');
+  lbl.textContent=pwd.length===0?'Enter a password above':labels[Math.min(score-1,4)]||'Too Weak';
+  lbl.style.color=score>0?colors[Math.min(score-1,4)]:'#7a6a58';
+  ['cLen','cUpper','cLower','cNum','cSpecial'].forEach((id,i)=>{
+    const el=document.getElementById(id);
+    const met=Object.values(criteria)[i];
+    el.classList.toggle('met',met);
+    el.querySelector('.crit-icon').textContent=met?'✓':'○';
+  });
+  const charset=(criteria.lower?26:0)+(criteria.upper?26:0)+(criteria.num?10:0)+(criteria.special?32:0)||26;
+  const combos=Math.pow(charset,pwd.length||1);
+  const secs=combos/1e10;
+  let crackLabel='';
+  if(secs<60)crackLabel='less than a minute ⚡';
+  else if(secs<3600)crackLabel=`~${Math.round(secs/60)} minutes`;
+  else if(secs<86400)crackLabel=`~${Math.round(secs/3600)} hours`;
+  else if(secs<31536000)crackLabel=`~${Math.round(secs/86400)} days`;
+  else if(secs<3.15e9)crackLabel=`~${Math.round(secs/31536000)} years`;
+  else crackLabel='centuries 🔒';
+  document.getElementById('pwdCrackTime').innerHTML=`<span style="color:#7a6a58;">Estimated time to crack:</span> <strong style="color:#b87c4f;">${crackLabel}</strong>`;
+}
+
+// Async/Await Demo
+async function runAsyncDemo(){
+  const btn=document.getElementById('asyncRunBtn');
+  btn.disabled=true;
+  const log=document.getElementById('asyncLog');
+  log.innerHTML='<span style="color:#b87c4f;">// Starting async tasks in parallel...</span><br>';
+  for(let i=0;i<5;i++){
+    const task=document.getElementById('aTask'+i);
+    task.className='async-task';
+    document.getElementById('aTime'+i).textContent='';
+  }
+  const tasks=Array.from({length:5},(_,i)=>fakeAsyncTask(i,log));
+  await Promise.all(tasks);
+  log.innerHTML+='<span style="color:#b87c4f;">// All tasks complete! Promise.all() resolved.</span><br>';
+  btn.disabled=false;
+}
+async function fakeAsyncTask(idx,log){
+  const delay=800+Math.random()*2400;
+  const task=document.getElementById('aTask'+idx);
+  const timeEl=document.getElementById('aTime'+idx);
+  task.className='async-task running';
+  const t0=Date.now();
+  log.innerHTML+=`<span style="color:#ffb86c;">  Task ${idx+1} started...</span><br>`;
+  await new Promise(r=>setTimeout(r,delay));
+  const elapsed=((Date.now()-t0)/1000).toFixed(2);
+  task.className='async-task done';
+  timeEl.textContent=elapsed+'s';
+  log.innerHTML+=`<span style="color:#50fa7b;">  ✓ Task ${idx+1} completed in ${elapsed}s</span><br>`;
+  log.scrollTop=log.scrollHeight;
+}
+</script>
+</body>
+</html>

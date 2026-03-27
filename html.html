@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HTML — Karun Thapa</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background: #fefcf8;
+  color: #1a1a1a;
+  font-family: 'Times New Roman', Times, serif;
+  min-height: 100vh;
+  cursor: none;
+}
+
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  z-index:0;
+  background-image:url('https://images.unsplash.com/photo-1532012197267-da84d127e765?w=1920&q=85&auto=format&fit=crop');
+  background-size:cover;
+  background-position:center;
+  background-attachment:fixed;
+  filter:brightness(0.98) saturate(0.6) blur(1px);
+  pointer-events:none;
+  opacity:0.08;
+}
+#loader,#sidebar,#main{position:relative;z-index:1;}
+
+#cursor{
+  position:fixed;top:0;left:0;z-index:99999;
+  width:10px;height:10px;border-radius:50%;
+  background:#b87c4f;pointer-events:none;
+  transform:translate(-50%,-50%);mix-blend-mode:multiply;
+}
+#cursor-ring{
+  position:fixed;top:0;left:0;z-index:99998;
+  width:36px;height:36px;border-radius:50%;
+  border:1px solid #b87c4f;pointer-events:none;
+  transform:translate(-50%,-50%);
+  transition:left 0.12s ease,top 0.12s ease;
+  opacity:0.4;
+}
+
+/* Loader */
+#loader{
+  position:fixed;inset:0;background:#fefcf8;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  z-index:10000;
+  transition:opacity .6s ease,visibility .6s ease;
+}
+#loader.hidden{opacity:0;visibility:hidden;pointer-events:none;}
+.loader-sigil{
+  font-family:'Times New Roman',Times,serif;
+  font-size:80px;color:#b87c4f;letter-spacing:8px;font-weight:bold;
+  animation:sigilPulse 2s ease-in-out infinite;
+}
+@keyframes sigilPulse{
+  0%,100%{opacity:0.5;text-shadow:0 0 20px #e6ccb3;}
+  50%{opacity:1;text-shadow:0 0 40px #d4a373;}
+}
+.loader-line{
+  font-family:'Times New Roman',Times,serif;font-size:12px;
+  color:#8b7355;letter-spacing:2px;margin-top:16px;
+  overflow:hidden;white-space:nowrap;border-right:1px solid #b87c4f;
+  width:0;animation:fadeTypeIn 1.2s ease forwards;
+}
+@keyframes fadeTypeIn{to{width:100%;}}
+.loader-progress{width:200px;height:2px;background:#e8e0d5;margin-top:24px;overflow:hidden;}
+.loader-fill{
+  height:100%;width:0;
+  background:linear-gradient(90deg,#c97e5a,#e6b17e);
+  animation:fillBar 1.6s ease forwards;
+}
+@keyframes fillBar{to{width:100%;}}
+
+/* Sidebar */
+#sidebar{
+  position:fixed;top:0;left:0;bottom:0;width:240px;
+  background:rgba(255,252,245,0.96);border-right:1px solid #e8e0d5;
+  backdrop-filter:blur(12px);display:flex;flex-direction:column;
+  z-index:500;padding:40px 0;
+  transform:translateX(-200px);
+  transition:transform 0.4s cubic-bezier(0.4,0,0.2,1);
+  box-shadow:2px 0 15px rgba(0,0,0,0.03);
+}
+#sidebar:hover{transform:translateX(0);}
+.sidebar-toggle{
+  position:absolute;right:-20px;top:50%;transform:translateY(-50%);
+  width:20px;height:70px;background:#e8e0d5;
+  border:1px solid #dcd0c0;border-left:none;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:9px;color:#b87c4f;
+  border-radius:0 6px 6px 0;writing-mode:vertical-lr;
+  letter-spacing:2px;font-family:'Times New Roman',Times,serif;font-weight:bold;
+}
+.sidebar-logo{padding:0 24px 32px;border-bottom:1px solid #e8e0d5;margin-bottom:20px;}
+.logo-mark{font-family:'Times New Roman',Times,serif;font-size:32px;color:#b87c4f;letter-spacing:2px;display:block;font-weight:bold;}
+.logo-sub{font-family:'Times New Roman',Times,serif;font-size:10px;color:#9b8a74;letter-spacing:1px;text-transform:uppercase;margin-top:6px;}
+.nav-link{
+  display:flex;align-items:center;gap:14px;padding:14px 24px;
+  font-family:'Times New Roman',Times,serif;font-size:12px;color:#7a6a58;
+  text-decoration:none;text-transform:uppercase;letter-spacing:1px;
+  border-left:2px solid transparent;transition:all 0.25s ease;cursor:pointer;
+}
+.nav-link:hover,.nav-link.active{color:#b87c4f;border-left-color:#b87c4f;background:rgba(184,124,79,0.05);}
+
+#main{margin-left:40px;width:calc(100% - 40px);}
+
+/* Page Hero */
+.page-hero{position:relative;height:380px;display:flex;align-items:flex-end;overflow:hidden;}
+.page-hero-bg{
+  position:absolute;inset:0;
+  background-image:url('https://images.unsplash.com/photo-1542831371-29b0f74f9713?w=1920&q=85&auto=format&fit=crop');
+  background-size:cover;background-position:center;
+  filter:brightness(0.92) sepia(0.1);
+  animation:slowZoom 20s ease-in-out infinite alternate;
+}
+@keyframes slowZoom{to{transform:scale(0.98);}}
+.page-hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,#fefcf8 15%,transparent 80%);}
+.page-hero-content{position:relative;z-index:2;padding:40px 80px;width:100%;}
+.page-chapter{
+  font-family:'Times New Roman',Times,serif;font-size:12px;color:#b87c4f;
+  letter-spacing:3px;text-transform:uppercase;margin-bottom:12px;
+  display:flex;align-items:center;gap:12px;
+}
+.page-chapter::before{content:'';display:inline-block;width:30px;height:1px;background:#b87c4f;}
+.page-title{font-family:'Times New Roman',Times,serif;font-size:clamp(56px,8vw,90px);color:#2c241a;letter-spacing:1px;line-height:0.9;font-weight:bold;}
+.page-subtitle{font-family:'Times New Roman',Times,serif;font-style:italic;font-size:18px;color:#7a6a58;margin-top:12px;}
+
+/* Content */
+.content{padding:60px 80px;max-width:100%;}
+
+/* FIX: Blocks are VISIBLE by default. The reveal animation is purely additive. */
+.block{
+  margin-bottom:72px;
+  opacity:1;
+  transform:translateY(0);
+  transition:opacity 0.7s ease, transform 0.7s ease;
+}
+/* Only apply hidden state when JS adds the class AND the observer hasn't fired yet */
+.block.reveal-pending{opacity:0;transform:translateY(24px);}
+.block.reveal-pending.visible{opacity:1;transform:translateY(0);}
+
+.block-tag{
+  display:inline-block;font-family:'Times New Roman',Times,serif;font-size:11px;
+  letter-spacing:2px;text-transform:uppercase;color:#b87c4f;
+  border:1px solid #e8e0d5;padding:4px 14px;margin-bottom:16px;background:#ffffff;
+}
+.block-title{font-family:'Times New Roman',Times,serif;font-size:clamp(32px,4vw,48px);color:#2c241a;letter-spacing:0;line-height:1.2;margin-bottom:20px;font-weight:bold;}
+.block-body{font-family:'Times New Roman',Times,serif;font-size:17px;color:#3a3228;line-height:1.8;max-width:90%;}
+.block-body strong{color:#b87c4f;}
+.block-body code{font-family:'Times New Roman',Times,serif;font-size:14px;color:#c97e5a;background:rgba(184,124,79,0.08);padding:2px 6px;border-radius:2px;}
+
+/* Code Block */
+.code-block{background:#ffffff;border:1px solid #e8e0d5;margin:28px 0;overflow:hidden;border-radius:4px;}
+.code-block-header{background:#faf7f2;border-bottom:1px solid #e8e0d5;padding:10px 20px;display:flex;align-items:center;gap:12px;}
+.cbt{font-family:'Times New Roman',Times,serif;font-size:11px;color:#7a6a58;flex:1;}
+.cbl{font-family:'Times New Roman',Times,serif;font-size:10px;color:#b87c4f;border:1px solid #e8e0d5;padding:2px 8px;background:#ffffff;}
+.code-block-body{display:flex;overflow-x:auto;}
+.line-nums{padding:14px 12px;background:#faf7f2;border-right:1px solid #e8e0d5;text-align:right;min-width:44px;flex-shrink:0;user-select:none;}
+.line-nums span{display:block;font-family:'Times New Roman',Times,serif;font-size:11px;color:#cbbfaf;line-height:1.75;}
+.code-content{padding:14px 22px;font-family:'Times New Roman',Times,serif;font-size:12px;line-height:1.75;white-space:pre;flex:1;color:#2c241a;}
+.kw{color:#b87c4f;font-weight:bold;}.fn{color:#c97e5a;}.str{color:#b87c4f;}.com{color:#b8aa98;font-style:italic;}
+.tag{color:#b87c4f;}.att{color:#8b7355;}.val{color:#c97e5a;}.num{color:#b87c4f;}.cls{color:#b87c4f;}
+
+.interactive-label{font-family:'Times New Roman',Times,serif;font-size:11px;color:#b87c4f;letter-spacing:1px;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.interactive-label::before{content:'●';color:#b87c4f;animation:blink 1s step-end infinite;}
+@keyframes blink{50%{opacity:0;}}
+
+/* Table */
+.styled-table{width:100%;border-collapse:collapse;margin-top:20px;}
+.styled-table th{background:#faf7f2;padding:12px 18px;font-family:'Times New Roman',Times,serif;font-size:12px;color:#b87c4f;letter-spacing:1px;text-align:left;border-bottom:2px solid #b87c4f;border-top:1px solid #e8e0d5;}
+.styled-table td{padding:12px 18px;border-bottom:1px solid #e8e0d5;font-family:'Times New Roman',Times,serif;font-size:12px;color:#5e5242;}
+.styled-table tr:hover td{background:#fefaf5;color:#2c241a;}
+
+/* Sandbox */
+.sandbox{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#e8e0d5;min-height:320px;}
+.sandbox-editor{background:#fefaf5;padding:20px;font-family:'Times New Roman',Times,serif;font-size:12px;color:#b87c4f;outline:none;border:none;resize:none;line-height:1.75;overflow-y:auto;}
+.sandbox-toolbar{display:flex;gap:8px;padding:10px 16px;background:#faf7f2;border-bottom:1px solid #e8e0d5;flex-wrap:wrap;align-items:center;}
+.stool-btn{font-family:'Times New Roman',Times,serif;font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:6px 14px;border:1px solid #e8e0d5;background:#ffffff;color:#7a6a58;cursor:pointer;transition:all 0.2s;border-radius:3px;}
+.stool-btn:hover{border-color:#b87c4f;color:#b87c4f;}
+
+/* Semantic */
+.sem-tag{color:#b87c4f;cursor:pointer;text-decoration:underline;text-decoration-style:dotted;}
+.sem-tag:hover{text-decoration:underline;}
+.sem-detail{background:#fefaf5;border:1px solid #e8e0d5;padding:14px 20px;margin-top:12px;font-family:'Times New Roman',Times,serif;font-size:12px;color:#2c241a;line-height:1.9;display:none;border-radius:4px;}
+.sem-detail.show{display:block;}
+
+/* Tag Grid */
+.tag-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px;}
+.tag-chip{font-family:'Times New Roman',Times,serif;font-size:11px;padding:6px 14px;border:1px solid #e8e0d5;color:#7a6a58;cursor:pointer;transition:all 0.2s;background:#ffffff;border-radius:3px;}
+.tag-chip:hover{border-color:#b87c4f;color:#b87c4f;transform:translateY(-2px);}
+.tag-info-panel{background:#fefaf5;border:1px solid #e8e0d5;padding:16px 20px;margin-top:16px;font-family:'Times New Roman',Times,serif;font-size:12px;color:#2c241a;line-height:1.9;min-height:70px;border-radius:4px;}
+
+/* Info Grid */
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;margin-top:24px;}
+.info-cell{background:#ffffff;padding:28px;transition:all 0.3s;border:1px solid #e8e0d5;border-radius:4px;}
+.info-cell:hover{background:#fefaf5;transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,0.05);}
+.info-cell-icon{font-size:28px;margin-bottom:12px;}
+.info-cell-title{font-family:'Times New Roman',Times,serif;font-size:22px;color:#b87c4f;margin-bottom:10px;font-weight:bold;}
+.info-cell-body{font-family:'Times New Roman',Times,serif;font-size:12px;color:#7a6a58;line-height:1.9;}
+
+/* Page Nav */
+.page-nav{display:flex;justify-content:space-between;align-items:center;padding:48px 80px;border-top:1px solid #e8e0d5;margin-top:20px;flex-wrap:wrap;gap:16px;}
+.page-nav a{font-family:'Times New Roman',Times,serif;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#7a6a58;text-decoration:none;padding:12px 28px;border:1px solid #e8e0d5;transition:all 0.3s;cursor:pointer;background:#ffffff;border-radius:3px;}
+.page-nav a:hover{border-color:#b87c4f;color:#b87c4f;}
+.page-nav a.next{background:#b87c4f;color:#fefcf8;border-color:#b87c4f;}
+.page-nav a.next:hover{background:#c97e5a;transform:translateX(2px);}
+
+footer{padding:24px 80px;border-top:1px solid #e8e0d5;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;background:#fefcf8;}
+.footer-text{font-family:'Times New Roman',Times,serif;font-size:11px;color:#9b8a74;letter-spacing:1px;}
+
+@media(max-width:768px){
+  #sidebar{transform:translateX(-240px);}
+  #main{margin-left:0;width:100%;}
+  .page-hero-content,.content{padding:40px 24px;}
+  .page-nav{padding:32px 24px;}
+  .sandbox{grid-template-columns:1fr;}
+  .block-body{max-width:100%;}
+}
+</style>
+</head>
+<body>
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<div id="loader">
+  <div class="loader-sigil">HTML</div>
+  <div class="loader-line">Loading HTML documentation...</div>
+  <div class="loader-progress"><div class="loader-fill"></div></div>
+</div>
+
+<nav id="sidebar">
+  <div class="sidebar-toggle">MENU</div>
+  <div class="sidebar-logo">
+    <span class="logo-mark">KARUN</span>
+    <span class="logo-sub">Full Stack Portfolio</span>
+  </div>
+  <a href="index.html" class="nav-link">00 Home</a>
+  <a href="fullstack.html" class="nav-link">01 Full Stack</a>
+  <a href="html.html" class="nav-link active">02 HTML</a>
+  <a href="css.html" class="nav-link">03 CSS</a>
+  <a href="bootstrap.html" class="nav-link">04 Bootstrap</a>
+  <a href="javascript.html" class="nav-link">05 JavaScript</a>
+</nav>
+
+<main id="main">
+  <div class="page-hero">
+    <div class="page-hero-bg"></div>
+    <div class="page-hero-overlay"></div>
+    <div class="page-hero-content">
+      <div class="page-chapter">Chapter 02 — HTML</div>
+      <h1 class="page-title">HYPER<br>TEXT</h1>
+      <p class="page-subtitle">The skeleton of every webpage.</p>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="block">
+      <div class="block-tag">Introduction</div>
+      <h2 class="block-title">What is HTML?</h2>
+      <div class="block-body">
+        <strong>HTML</strong> (HyperText Markup Language) is the standard language for creating web pages. It uses <strong>elements</strong> — building blocks enclosed in angle-bracket tags — to describe the structure and meaning of web content.<br><br>
+        HTML is <em>not</em> a programming language. Its role is purely <strong>structural and semantic</strong>: telling the browser what each piece of content <em>is</em>, not what it should look like (that is CSS's job).
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-tag">Document Structure</div>
+      <h2 class="block-title">Anatomy of an HTML Document</h2>
+      <div class="code-block">
+        <div class="code-block-header"><span class="cbt">Complete HTML document skeleton</span><span class="cbl">HTML5</span></div>
+        <div class="code-block-body">
+          <div class="line-nums"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span></div>
+          <div class="code-content"><span class="com">&lt;!-- DOCTYPE: tells browser this is HTML5 --&gt;</span>
+<span class="tag">&lt;!DOCTYPE</span> <span class="att">html</span><span class="tag">&gt;</span>
+<span class="tag">&lt;html</span> <span class="att">lang=</span><span class="val">"en"</span><span class="tag">&gt;</span>
+<span class="tag">&lt;head&gt;</span>
+  <span class="tag">&lt;meta</span> <span class="att">charset=</span><span class="val">"UTF-8"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;meta</span> <span class="att">name=</span><span class="val">"viewport"</span> <span class="att">content=</span><span class="val">"width=device-width, initial-scale=1.0"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;title&gt;</span>My Page Title<span class="tag">&lt;/title&gt;</span>
+  <span class="tag">&lt;link</span> <span class="att">rel=</span><span class="val">"stylesheet"</span> <span class="att">href=</span><span class="val">"styles.css"</span><span class="tag">&gt;</span>
+<span class="tag">&lt;/head&gt;</span>
+<span class="tag">&lt;body&gt;</span>
+  <span class="tag">&lt;h1&gt;</span>Hello, World!<span class="tag">&lt;/h1&gt;</span>
+  <span class="tag">&lt;p&gt;</span>This is my first webpage.<span class="tag">&lt;/p&gt;</span>
+<span class="tag">&lt;/body&gt;</span>
+<span class="tag">&lt;/html&gt;</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-tag">Semantic HTML</div>
+      <h2 class="block-title">Semantic HTML5 Elements</h2>
+      <div class="block-body" style="margin-bottom:24px;">
+        <strong>Semantic elements</strong> tell the browser what a section <em>means</em>. Click any element to learn about it:
+      </div>
+      <div class="interactive-label">Click any tag to reveal its purpose</div>
+      <div style="background:#ffffff;border:1px solid #e8e0d5;padding:24px;font-family:'Times New Roman',Times,serif;font-size:13px;line-height:2.4;color:#7a6a58;border-radius:4px;">
+        <span style="color:#b8aa98;">&lt;!-- Semantic Document Structure --&gt;</span><br>
+        <span style="color:#b87c4f;">&lt;</span><span class="sem-tag" onclick="showSem('header')">header</span><span style="color:#b87c4f;">&gt;</span><br>
+        &nbsp;&nbsp;<span style="color:#b87c4f;">&lt;</span><span class="sem-tag" onclick="showSem('nav')">nav</span><span style="color:#b87c4f;">&gt;</span> ... <span style="color:#b87c4f;">&lt;/nav&gt;</span><br>
+        <span style="color:#b87c4f;">&lt;/header&gt;</span><br>
+        <span style="color:#b87c4f;">&lt;</span><span class="sem-tag" onclick="showSem('main')">main</span><span style="color:#b87c4f;">&gt;</span><br>
+        &nbsp;&nbsp;<span style="color:#b87c4f;">&lt;</span><span class="sem-tag" onclick="showSem('article')">article</span><span style="color:#b87c4f;">&gt;</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#b87c4f;">&lt;</span><span class="sem-tag" onclick="showSem('section')">section</span><span style="color:#b87c4f;">&gt;</span> ... <span style="color:#b87c4f;">&lt;/section&gt;</span><br>
+        &nbsp;&nbsp;<span style="color:#b87c4f;">&lt;/article&gt;</span><br>
+        &nbsp;&nbsp;<span style="color:#b87c4f;">&lt;</span><span class="sem-tag" onclick="showSem('aside')">aside</span><span style="color:#b87c4f;">&gt;</span> ... <span style="color:#b87c4f;">&lt;/aside&gt;</span><br>
+        <span style="color:#b87c4f;">&lt;/main&gt;</span><br>
+        <span style="color:#b87c4f;">&lt;</span><span class="sem-tag" onclick="showSem('footer')">footer</span><span style="color:#b87c4f;">&gt;</span> ... <span style="color:#b87c4f;">&lt;/footer&gt;</span>
+      </div>
+      <div class="sem-detail" id="semDetail"></div>
+    </div>
+
+    <div class="block">
+      <div class="block-tag">Tag Reference</div>
+      <h2 class="block-title">Common HTML Tags</h2>
+      <div class="interactive-label">Hover any tag for description and example</div>
+      <div class="tag-grid" id="tagGrid"></div>
+      <div class="tag-info-panel" id="tagInfoPanel">Hover a tag above to see its description and example</div>
+    </div>
+
+    <div class="block">
+      <div class="block-tag">Playground</div>
+      <h2 class="block-title">Interactive HTML Playground</h2>
+      <div class="block-body" style="margin-bottom:20px;">Edit HTML on the left — the preview updates <strong>live</strong> on the right.</div>
+      <div class="interactive-label">Live Editor</div>
+      <div style="border:1px solid #e8e0d5;overflow:hidden;border-radius:4px;">
+        <div class="sandbox-toolbar">
+          <div style="display:flex;gap:6px;align-items:center;">
+            <div style="width:8px;height:8px;border-radius:50%;background:#ff5f57;"></div>
+            <div style="width:8px;height:8px;border-radius:50%;background:#febc2e;"></div>
+            <div style="width:8px;height:8px;border-radius:50%;background:#28c840;"></div>
+            <span style="font-family:'Times New Roman',Times,serif;font-size:11px;color:#7a6a58;margin-left:8px;">HTML Sandbox</span>
+          </div>
+          <div style="margin-left:auto;display:flex;gap:6px;">
+            <button class="stool-btn" onclick="loadSnippet('basic')">Basic</button>
+            <button class="stool-btn" onclick="loadSnippet('form')">Form</button>
+            <button class="stool-btn" onclick="loadSnippet('table')">Table</button>
+            <button class="stool-btn" onclick="loadSnippet('media')">Media</button>
+          </div>
+        </div>
+        <div class="sandbox">
+          <textarea class="sandbox-editor" id="sandboxEditor" oninput="updatePreview()" spellcheck="false"></textarea>
+          <iframe id="sandboxPreview" style="border:none;background:#ffffff;" width="100%" height="100%"></iframe>
+        </div>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-tag">Forms</div>
+      <h2 class="block-title">HTML Forms</h2>
+      <div class="block-body">
+        Forms are how users send data to servers. Each <code>&lt;input&gt;</code> has a <code>type</code> attribute that defines what kind of data it accepts. HTML5 added new input types with <strong>built-in validation</strong>.
+      </div>
+      <div class="code-block" style="margin-top:24px;">
+        <div class="code-block-header"><span class="cbt">HTML Form Example</span><span class="cbl">HTML5</span></div>
+        <div class="code-block-body">
+          <div class="line-nums"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span></div>
+          <div class="code-content"><span class="tag">&lt;form</span> <span class="att">action=</span><span class="val">"register.php"</span> <span class="att">method=</span><span class="val">"POST"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;label</span> <span class="att">for=</span><span class="val">"email"</span><span class="tag">&gt;</span>Email<span class="tag">&lt;/label&gt;</span>
+  <span class="tag">&lt;input</span> <span class="att">type=</span><span class="val">"email"</span> <span class="att">id=</span><span class="val">"email"</span> <span class="att">required</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;label</span> <span class="att">for=</span><span class="val">"age"</span><span class="tag">&gt;</span>Age<span class="tag">&lt;/label&gt;</span>
+  <span class="tag">&lt;input</span> <span class="att">type=</span><span class="val">"number"</span> <span class="att">id=</span><span class="val">"age"</span> <span class="att">min=</span><span class="val">"18"</span> <span class="att">max=</span><span class="val">"120"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;label</span> <span class="att">for=</span><span class="val">"dob"</span><span class="tag">&gt;</span>Date of Birth<span class="tag">&lt;/label&gt;</span>
+  <span class="tag">&lt;input</span> <span class="att">type=</span><span class="val">"date"</span> <span class="att">id=</span><span class="val">"dob"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;button</span> <span class="att">type=</span><span class="val">"submit"</span><span class="tag">&gt;</span>Register<span class="tag">&lt;/button&gt;</span>
+<span class="tag">&lt;/form&gt;</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-tag">Reference Table</div>
+      <h2 class="block-title">HTML5 Input Types</h2>
+      <table class="styled-table">
+        <thead>
+          <tr><th>Type</th><th>Example Value</th><th>Validation</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code style="color:#b87c4f">text</code></td><td>John Smith</td><td>None</td><td>Plain text, most common</td></tr>
+          <tr><td><code style="color:#b87c4f">email</code></td><td>a@b.com</td><td>✓ Email format</td><td>Email keyboard on mobile</td></tr>
+          <tr><td><code style="color:#b87c4f">password</code></td><td>hidden</td><td>None</td><td>Masks input visually</td></tr>
+          <tr><td><code style="color:#b87c4f">number</code></td><td>42</td><td>✓ Numeric</td><td>Supports min/max/step</td></tr>
+          <tr><td><code style="color:#b87c4f">date</code></td><td>2025-06-15</td><td>✓ Date picker</td><td>Returns YYYY-MM-DD</td></tr>
+          <tr><td><code style="color:#b87c4f">color</code></td><td>#ff6600</td><td>✓ Color picker</td><td>Returns hex value</td></tr>
+          <tr><td><code style="color:#b87c4f">range</code></td><td>0-100</td><td>✓ Slider</td><td>Visual slider control</td></tr>
+          <tr><td><code style="color:#b87c4f">file</code></td><td>photo.jpg</td><td>None</td><td>Supports multiple/accept</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="block">
+      <div class="block-tag">HTML5 Features</div>
+      <h2 class="block-title">What HTML5 Added</h2>
+      <div class="info-grid">
+        <div class="info-cell"><div class="info-cell-icon">🎬</div><div class="info-cell-title">Native Media</div><div class="info-cell-body">Built-in video and audio tags. No Flash required. Supports MP4, WebM, OGG.</div></div>
+        <div class="info-cell"><div class="info-cell-icon">🎨</div><div class="info-cell-title">Canvas and SVG</div><div class="info-cell-body">canvas gives a JS-powered pixel drawing surface. SVG puts vector graphics in the DOM.</div></div>
+        <div class="info-cell"><div class="info-cell-icon">💾</div><div class="info-cell-title">Local Storage</div><div class="info-cell-body">localStorage and sessionStorage store key-value data in the browser with no server needed.</div></div>
+        <div class="info-cell"><div class="info-cell-icon">📍</div><div class="info-cell-title">Geolocation API</div><div class="info-cell-body">navigator.geolocation.getCurrentPosition() gets the user GPS coordinates with permission.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-nav">
+    <a href="fullstack.html">← Full Stack</a>
+    <a href="css.html" class="next">CSS →</a>
+  </div>
+
+  <footer>
+    <span class="footer-text">© 2025–26 Karun Thapa</span>
+    <span class="footer-text">HTML Fundamentals</span>
+  </footer>
+</main>
+
+<script>
+// Custom cursor
+var cursorDot  = document.getElementById("cursor");
+var cursorRing = document.getElementById("cursor-ring");
+document.addEventListener("mousemove", function(e) {
+  cursorDot.style.left  = e.clientX + "px";
+  cursorDot.style.top   = e.clientY + "px";
+  cursorRing.style.left = e.clientX + "px";
+  cursorRing.style.top  = e.clientY + "px";
+});
+
+// Hard failsafe - loader always hides even if JS crashes
+window.addEventListener("load", function() {
+  setTimeout(function() {
+    var loader = document.getElementById("loader");
+    if (loader) loader.classList.add("hidden");
+    document.querySelectorAll(".block").forEach(function(el) { el.classList.add("visible"); });
+  }, 3500);
+});
+
+// ── FIX: Loader hides after 1.8s, then blocks are revealed reliably ──
+document.addEventListener("DOMContentLoaded", function() {
+  try { buildTagGrid(); } catch(e) { console.warn("tagGrid error:", e); }
+  try { loadSnippet("basic"); } catch(e) { console.warn("snippet error:", e); }
+
+  setTimeout(function() {
+    // 1. Hide loader
+    document.getElementById("loader").classList.add("hidden");
+
+    // 2. Add reveal-pending to blocks
+    var blocks = document.querySelectorAll(".block");
+    blocks.forEach(function(el) {
+      el.classList.add("reveal-pending");
+    });
+
+    // 3. Use requestAnimationFrame so the browser has painted the hidden state
+    // before we start checking visibility - prevents flash of invisible content
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        // Immediately reveal anything already in the viewport
+        blocks.forEach(function(el) {
+          var rect = el.getBoundingClientRect();
+          if (rect.top < window.innerHeight + 50) {
+            el.classList.add("visible");
+          }
+        });
+
+        // Observe the rest for scroll-triggered reveal
+        var obs = new IntersectionObserver(function(entries) {
+          entries.forEach(function(e) {
+            if (e.isIntersecting) {
+              e.target.classList.add("visible");
+              obs.unobserve(e.target);
+            }
+          });
+        }, { rootMargin: "0px 0px -60px 0px", threshold: 0.05 });
+
+        blocks.forEach(function(el) {
+          if (!el.classList.contains("visible")) {
+            obs.observe(el);
+          }
+        });
+
+        // ── SAFETY NET: force all blocks visible after 1 more second ──
+        // Catches any edge case where observer doesn't fire (e.g. reduced-motion, hidden tab)
+        setTimeout(function() {
+          blocks.forEach(function(el) {
+            el.classList.add("visible");
+          });
+        }, 1000);
+      });
+    });
+  }, 1800);
+});
+
+// Semantic element info
+var semInfo = {
+  header:  { def: "Contains introductory content - logo, site name, or navigation.", ex: "&lt;header&gt;&lt;h1&gt;Site Name&lt;/h1&gt;&lt;/header&gt;" },
+  nav:     { def: "Defines a block of major navigation links. Use for primary navigation only.", ex: "&lt;nav&gt;&lt;a href='/'&gt;Home&lt;/a&gt;&lt;/nav&gt;" },
+  main:    { def: "Wraps the dominant content of the page. Only ONE per page.", ex: "&lt;main&gt;&lt;h1&gt;Title&lt;/h1&gt;...&lt;/main&gt;" },
+  article: { def: "Wraps self-contained content - a blog post, news story, or forum post.", ex: "&lt;article&gt;&lt;h2&gt;Post&lt;/h2&gt;&lt;p&gt;...&lt;/p&gt;&lt;/article&gt;" },
+  section: { def: "Groups thematically related content. Each section should have a heading.", ex: "&lt;section&gt;&lt;h2&gt;About&lt;/h2&gt;&lt;p&gt;...&lt;/p&gt;&lt;/section&gt;" },
+  aside:   { def: "Holds tangentially related content like a sidebar or pull quote.", ex: "&lt;aside&gt;&lt;h3&gt;Related&lt;/h3&gt;&lt;/aside&gt;" },
+  footer:  { def: "Contains footer information - copyright, contact details, author.", ex: "&lt;footer&gt;&lt;p&gt;© 2025 Karun&lt;/p&gt;&lt;/footer&gt;" }
+};
+
+function showSem(tag) {
+  var d = document.getElementById("semDetail");
+  var i = semInfo[tag];
+  d.innerHTML = "<strong style='color:#b87c4f'>&lt;" + tag + "&gt;</strong> - " + i.def + "<br><br><span style='color:#7a6a58'>Example: </span><code style='color:#b87c4f'>" + i.ex + "</code>";
+  d.classList.add("show");
+}
+
+// Tag reference data
+var tags = [
+  {tag:"h1-h6", desc:"Headings h1 to h6. One h1 per page for SEO.", ex:"&lt;h1&gt;Main Title&lt;/h1&gt;"},
+  {tag:"p", desc:"A paragraph of text.", ex:"&lt;p&gt;Some text here.&lt;/p&gt;"},
+  {tag:"a", desc:"Anchor/hyperlink. href specifies the destination.", ex:"&lt;a href='page.html'&gt;Click here&lt;/a&gt;"},
+  {tag:"img", desc:"Embeds an image. src is the path, alt is for screen readers.", ex:"&lt;img src='photo.jpg' alt='Photo description'&gt;"},
+  {tag:"ul/ol", desc:"Unordered or ordered list. Items wrapped in li.", ex:"&lt;ul&gt;&lt;li&gt;Item one&lt;/li&gt;&lt;/ul&gt;"},
+  {tag:"div", desc:"Generic block container for grouping or styling.", ex:"&lt;div class='card'&gt;Content&lt;/div&gt;"},
+  {tag:"span", desc:"Generic inline container for styling text.", ex:"&lt;span class='highlight'&gt;text&lt;/span&gt;"},
+  {tag:"table", desc:"Tabular data using thead, tbody, tr, th, td.", ex:"&lt;table&gt;&lt;tr&gt;&lt;td&gt;Data&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;"},
+  {tag:"form", desc:"Container for user input. action and method attributes.", ex:"&lt;form action='submit.php' method='POST'&gt;"},
+  {tag:"input", desc:"Single-line data entry. type controls behaviour.", ex:"&lt;input type='email' placeholder='Email'&gt;"},
+  {tag:"button", desc:"Clickable button. type='submit' sends form.", ex:"&lt;button type='submit'&gt;Send&lt;/button&gt;"},
+  {tag:"label", desc:"Associates a label with a form input via the for attribute.", ex:"&lt;label for='name'&gt;Name:&lt;/label&gt;"},
+  {tag:"script", desc:"Embeds or links JavaScript. Place before closing body tag.", ex:"&lt;script src='app.js'&gt;&lt;/script&gt;"},
+  {tag:"link", desc:"Links an external resource, usually a CSS stylesheet.", ex:"&lt;link rel='stylesheet' href='style.css'&gt;"},
+  {tag:"meta", desc:"Metadata: charset, viewport, SEO. Lives in head.", ex:"&lt;meta name='description' content='...'&gt;"},
+  {tag:"video", desc:"Embeds a video. Add controls attribute for built-in UI.", ex:"&lt;video src='clip.mp4' controls&gt;&lt;/video&gt;"}
+];
+
+function buildTagGrid() {
+  var grid = document.getElementById("tagGrid");
+  tags.forEach(function(t) {
+    var chip = document.createElement("div");
+    chip.className = "tag-chip";
+    chip.textContent = "<" + t.tag + ">";
+    chip.addEventListener("mouseenter", function() {
+      document.getElementById("tagInfoPanel").innerHTML =
+        "<strong style='color:#b87c4f'>&lt;" + t.tag + "&gt;</strong> - " + t.desc +
+        "<br><br><span style='color:#7a6a58'>Example: </span><code style='color:#b87c4f;font-size:11px'>" + t.ex + "</code>";
+    });
+    grid.appendChild(chip);
+  });
+}
+
+// Sandbox snippets
+var snippets = {
+  basic: "<h1>Hello World</h1><p>A <strong>paragraph</strong> with <em>italic</em> and a <a href='#'>link</a>.</p><ul><li>HTML is structure</li><li>CSS is style</li><li>JS is behaviour</li></ul>",
+  form:  "<h2>Registration Form</h2><form><label>Name:<br><input type='text' placeholder='Your name'></label><br><br><label>Email:<br><input type='email' placeholder='you@email.com'></label><br><br><button type='submit'>Submit</button></form>",
+  table: "<h2>Student Marks</h2><table border='1' cellpadding='8' style='border-collapse:collapse;width:100%'><thead><tr><th>Subject</th><th>Marks</th></tr></thead><tbody><tr><td>HTML</td><td>95</td></tr><tr><td>CSS</td><td>88</td></tr></tbody></table>",
+  media: "<h2>Media Example</h2><figure><img src='https://picsum.photos/320/180' alt='Random photo' style='border-radius:8px;max-width:100%'><figcaption>Lorem Picsum - Random Image</figcaption></figure>"
+};
+
+function loadSnippet(key) {
+  document.getElementById("sandboxEditor").value = snippets[key];
+  updatePreview();
+}
+
+function updatePreview() {
+  try {
+    var code  = document.getElementById("sandboxEditor").value;
+    var frame = document.getElementById("sandboxPreview");
+    var css = "body{font-family:'Times New Roman',Times,serif;padding:16px;font-size:14px;line-height:1.6;color:#1a1a1a;}";
+    css += "h1,h2{margin-bottom:8px;}p{margin-bottom:10px;}";
+    css += "table{border-collapse:collapse;}td,th{padding:8px 12px;border:1px solid #e8e0d5;}";
+    css += "input,button{padding:6px 10px;border:1px solid #e8e0d5;border-radius:4px;font-size:14px;}";
+    css += "button{background:#b87c4f;border:none;cursor:pointer;color:#fff;}";
+    css += "a{color:#b87c4f;}figure{margin:0;}figcaption{font-size:12px;color:#7a6a58;margin-top:4px;}";
+    var full = "<!DOCTYPE html><html><head><title>Preview</title><style>" + css + "<\/style><\/head><body>" + code + "<\/body><\/html>";
+    frame.srcdoc = full;
+  } catch(err) {
+    console.warn("Preview error:", err);
+  }
+}
+</script>
+</body>
+</html>

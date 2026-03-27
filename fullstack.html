@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Full Stack Development — Karun Thapa</title>
+<style>
+/* Base Styles - Light Theme */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background: #fefcf8;
+  color: #1a1a1a;
+  font-family: 'Times New Roman', Times, serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Background Overlay - Light */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  z-index:0;
+  background-image:url('https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1920&q=80&auto=format&fit=crop');
+  background-size:cover;
+  background-position:center;
+  background-attachment:fixed;
+  filter:brightness(0.98) saturate(0.6) blur(1px);
+  pointer-events:none;
+  opacity:0.08;
+}
+#loader,#sidebar,#main{position:relative;z-index:1;}
+
+/* Custom Cursor - Light Version */
+#cursor{
+  position:fixed;
+  top:0;
+  left:0;
+  z-index:99999;
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:#b87c4f;
+  pointer-events:none;
+  transform:translate(-50%,-50%);
+  transition:transform 0.1s,width 0.2s,height 0.2s;
+  mix-blend-mode:multiply;
+}
+#cursor-ring{
+  position:fixed;
+  top:0;
+  left:0;
+  z-index:99998;
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  border:1px solid #b87c4f;
+  pointer-events:none;
+  transform:translate(-50%,-50%);
+  transition:transform 0.18s ease,width 0.3s,height 0.3s;
+  opacity:0.4;
+}
+
+/* Loader - Light Theme */
+#loader{
+  position:fixed;
+  inset:0;
+  background:#fefcf8;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  z-index:10000;
+  transition:opacity .8s ease,visibility .8s ease;
+}
+#loader.hidden{opacity:0;visibility:hidden;}
+.loader-sigil{
+  font-family:'Times New Roman', Times, serif;
+  font-size:80px;
+  color:#b87c4f;
+  letter-spacing:8px;
+  font-weight:bold;
+  animation:sigilPulse 2s ease-in-out infinite;
+}
+@keyframes sigilPulse{
+  0%,100%{opacity:0.5;text-shadow:0 0 20px #e6ccb3;}
+  50%{opacity:1;text-shadow:0 0 40px #d4a373;}
+}
+.loader-line{
+  font-family:'Times New Roman', Times, serif;
+  font-size:12px;
+  color:#8b7355;
+  letter-spacing:2px;
+  margin-top:16px;
+  animation:fadeTypeIn 1.2s ease forwards;
+  overflow:hidden;
+  white-space:nowrap;
+  border-right:1px solid #b87c4f;
+  width:0;
+}
+@keyframes fadeTypeIn{to{width:100%;}}
+.loader-progress{
+  width:200px;
+  height:2px;
+  background:#e8e0d5;
+  margin-top:24px;
+  overflow:hidden;
+}
+.loader-fill{
+  height:100%;
+  width:0;
+  background:linear-gradient(90deg, #c97e5a, #e6b17e);
+  animation:fillBar 2.2s ease forwards;
+}
+@keyframes fillBar{to{width:100%;}}
+
+/* Sidebar Navigation - Light */
+#sidebar{
+  position:fixed;
+  top:0;
+  left:0;
+  bottom:0;
+  width:240px;
+  background:rgba(255,252,245,0.96);
+  border-right:1px solid #e8e0d5;
+  backdrop-filter:blur(12px);
+  display:flex;
+  flex-direction:column;
+  z-index:500;
+  padding:40px 0;
+  transform:translateX(-200px);
+  transition:transform 0.4s cubic-bezier(0.4,0,0.2,1);
+  box-shadow:2px 0 15px rgba(0,0,0,0.03);
+}
+#sidebar:hover{transform:translateX(0);}
+.sidebar-toggle{
+  position:absolute;
+  right:-20px;
+  top:50%;
+  transform:translateY(-50%);
+  width:20px;
+  height:70px;
+  background:#e8e0d5;
+  border:1px solid #dcd0c0;
+  border-left:none;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:none;
+  font-size:9px;
+  color:#b87c4f;
+  border-radius:0 6px 6px 0;
+  writing-mode:vertical-lr;
+  letter-spacing:2px;
+  font-family:'Times New Roman', Times, serif;
+  font-weight:bold;
+}
+.sidebar-logo{
+  padding:0 24px 32px;
+  border-bottom:1px solid #e8e0d5;
+  margin-bottom:20px;
+}
+.sidebar-logo .logo-mark{
+  font-family:'Times New Roman', Times, serif;
+  font-size:32px;
+  color:#b87c4f;
+  letter-spacing:2px;
+  display:block;
+  font-weight:bold;
+}
+.sidebar-logo .logo-sub{
+  font-family:'Times New Roman', Times, serif;
+  font-size:10px;
+  color:#9b8a74;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  margin-top:6px;
+}
+.nav-link{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:14px 24px;
+  font-family:'Times New Roman', Times, serif;
+  font-size:12px;
+  color:#7a6a58;
+  text-decoration:none;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  border-left:2px solid transparent;
+  transition:all 0.25s ease;
+  cursor:none;
+}
+.nav-link:hover,.nav-link.active{
+  color:#b87c4f;
+  border-left-color:#b87c4f;
+  background:rgba(184,124,79,0.05);
+}
+.nav-link .nav-num{
+  font-size:10px;
+  color:#d4c4b4;
+  transition:color 0.25s;
+}
+.nav-link:hover .nav-num,.nav-link.active .nav-num{color:#c97e5a;}
+.nav-link .nav-icon{font-size:16px;min-width:20px;}
+
+/* Main Content - Full Width */
+#main{
+  margin-left:40px;
+  min-height:100vh;
+  width:calc(100% - 40px);
+}
+
+/* Page Hero - Full Width */
+.page-hero{
+  position:relative;
+  height:380px;
+  display:flex;
+  align-items:flex-end;
+  overflow:hidden;
+}
+.page-hero-bg{
+  position:absolute;
+  inset:0;
+  background-image:url('https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=1920&q=80&auto=format&fit=crop');
+  background-size:cover;
+  background-position:center;
+  filter:brightness(0.92) sepia(0.1);
+  transform:scale(1.02);
+  animation:slowZoom 20s ease-in-out infinite alternate;
+}
+@keyframes slowZoom{to{transform:scale(1.0);}}
+.page-hero-overlay{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(to top, #fefcf8 15%, transparent 80%);
+}
+.page-hero-content{
+  position:relative;
+  z-index:2;
+  padding:40px 80px;
+  width:100%;
+}
+.page-chapter{
+  font-family:'Times New Roman', Times, serif;
+  font-size:12px;
+  color:#b87c4f;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  margin-bottom:12px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.page-chapter::before{
+  content:'';
+  display:inline-block;
+  width:30px;
+  height:1px;
+  background:#b87c4f;
+}
+.page-title{
+  font-family:'Times New Roman', Times, serif;
+  font-size:clamp(56px,8vw,90px);
+  color:#2c241a;
+  letter-spacing:1px;
+  line-height:0.9;
+  font-weight:bold;
+}
+.page-subtitle{
+  font-family:'Times New Roman', Times, serif;
+  font-style:italic;
+  font-size:18px;
+  color:#7a6a58;
+  margin-top:12px;
+}
+
+/* Content Area - Full Width */
+.content{
+  padding:60px 80px 80px 80px;
+  max-width:100%;
+}
+.block{margin-bottom:72px;}
+.block-header{margin-bottom:28px;}
+.block-tag{
+  display:inline-block;
+  font-family:'Times New Roman', Times, serif;
+  font-size:11px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:#b87c4f;
+  border:1px solid #e8e0d5;
+  padding:4px 14px;
+  margin-bottom:16px;
+  background:#ffffff;
+}
+.block-title{
+  font-family:'Times New Roman', Times, serif;
+  font-size:clamp(32px,4vw,48px);
+  color:#2c241a;
+  letter-spacing:0px;
+  line-height:1.2;
+  font-weight:bold;
+}
+.block-body{
+  font-family:'Times New Roman', Times, serif;
+  font-size:17px;
+  color:#3a3228;
+  line-height:1.8;
+  max-width:90%;
+}
+.block-body strong{color:#b87c4f;}
+.block-body code{
+  font-family:'Times New Roman', Times, serif;
+  font-size:14px;
+  color:#c97e5a;
+  background:rgba(184,124,79,0.08);
+  padding:2px 6px;
+  border-radius:2px;
+}
+
+/* Info Grid - Light */
+.info-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:24px;
+  margin-top:32px;
+}
+.info-cell{
+  background:#ffffff;
+  padding:32px;
+  transition:all 0.3s;
+  border:1px solid #e8e0d5;
+  border-radius:4px;
+}
+.info-cell:hover{
+  background:#fefaf5;
+  transform:translateY(-2px);
+  box-shadow:0 8px 20px rgba(0,0,0,0.05);
+}
+.info-cell-icon{font-size:32px;margin-bottom:14px;}
+.info-cell-title{
+  font-family:'Times New Roman', Times, serif;
+  font-size:24px;
+  letter-spacing:0px;
+  color:#b87c4f;
+  margin-bottom:12px;
+  font-weight:bold;
+}
+.info-cell-body{
+  font-family:'Times New Roman', Times, serif;
+  font-size:12px;
+  color:#7a6a58;
+  line-height:1.9;
+}
+.info-cell-body code{color:#b87c4f;background:transparent;padding:0;}
+
+/* Code Block - Light */
+.code-block{
+  background:#ffffff;
+  border:1px solid #e8e0d5;
+  margin:32px 0;
+  overflow:hidden;
+  border-radius:4px;
+}
+.code-block-header{
+  background:#faf7f2;
+  border-bottom:1px solid #e8e0d5;
+  padding:10px 20px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.code-block-title{
+  font-family:'Times New Roman', Times, serif;
+  font-size:11px;
+  color:#7a6a58;
+  flex:1;
+}
+.code-block-lang{
+  font-family:'Times New Roman', Times, serif;
+  font-size:10px;
+  color:#b87c4f;
+  border:1px solid #e8e0d5;
+  padding:2px 8px;
+  background:#ffffff;
+}
+.code-block-body{
+  display:flex;
+  overflow-x:auto;
+}
+.line-nums{
+  padding:16px 14px;
+  background:#faf7f2;
+  border-right:1px solid #e8e0d5;
+  text-align:right;
+  min-width:48px;
+  flex-shrink:0;
+  user-select:none;
+}
+.line-nums span{
+  display:block;
+  font-family:'Times New Roman', Times, serif;
+  font-size:12px;
+  color:#cbbfaf;
+  line-height:1.75;
+}
+.code-content{
+  padding:16px 24px;
+  font-family:'Times New Roman', Times, serif;
+  font-size:13px;
+  line-height:1.75;
+  white-space:pre;
+  flex:1;
+  color:#2c241a;
+}
+.kw{color:#b87c4f;font-weight:bold;}
+.fn{color:#c97e5a;}
+.str{color:#b87c4f;}
+.com{color:#b8aa98;font-style:italic;}
+.tag{color:#b87c4f;}
+.att{color:#8b7355;}
+.val{color:#c97e5a;}
+
+/* Table Styles */
+.styled-table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:24px;
+}
+.styled-table th{
+  background:#faf7f2;
+  padding:12px 20px;
+  font-family:'Times New Roman', Times, serif;
+  font-size:12px;
+  color:#b87c4f;
+  letter-spacing:1px;
+  text-align:left;
+  border-bottom:2px solid #b87c4f;
+  border-top:1px solid #e8e0d5;
+}
+.styled-table td{
+  padding:14px 20px;
+  border-bottom:1px solid #e8e0d5;
+  font-family:'Times New Roman', Times, serif;
+  font-size:12px;
+  color:#5e5242;
+}
+.styled-table tr:hover td{
+  background:#fefaf5;
+  color:#2c241a;
+}
+.check{color:#b87c4f;}
+.cross{color:#c97e5a;}
+.part{color:#b87c4f;}
+
+/* Page Navigation */
+.page-nav{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:48px 80px;
+  border-top:1px solid #e8e0d5;
+  margin-top:60px;
+  flex-wrap:wrap;
+  gap:16px;
+}
+.page-nav a{
+  font-family:'Times New Roman', Times, serif;
+  font-size:12px;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  color:#7a6a58;
+  text-decoration:none;
+  padding:12px 28px;
+  border:1px solid #e8e0d5;
+  transition:all 0.3s;
+  cursor:none;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  background:#ffffff;
+}
+.page-nav a:hover{
+  border-color:#b87c4f;
+  color:#b87c4f;
+}
+.page-nav a.next{
+  background:#b87c4f;
+  color:#fefcf8;
+  border-color:#b87c4f;
+}
+.page-nav a.next:hover{
+  background:#c97e5a;
+  transform:translateX(2px);
+}
+
+/* Footer */
+footer{
+  padding:24px 80px;
+  border-top:1px solid #e8e0d5;
+  display:flex;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:12px;
+  background:#fefcf8;
+}
+.footer-text{
+  font-family:'Times New Roman', Times, serif;
+  font-size:11px;
+  color:#9b8a74;
+  letter-spacing:1px;
+}
+
+/* Reveal Animation */
+.reveal{
+  opacity:0;
+  transform:translateY(24px);
+  transition:opacity 0.7s ease,transform 0.7s ease;
+}
+.reveal.visible{opacity:1;transform:none;}
+
+/* Layer Stack - Light */
+.layer-stack{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  max-width:90%;
+  margin-top:24px;
+}
+.layer{
+  display:flex;
+  align-items:center;
+  gap:20px;
+  padding:20px 28px;
+  background:#ffffff;
+  border:1px solid #e8e0d5;
+  border-left:4px solid var(--layer-color, #b87c4f);
+  transition:transform 0.3s,background 0.3s;
+  cursor:default;
+  border-radius:4px;
+}
+.layer:hover{
+  transform:translateX(8px);
+  background:#fefaf5;
+}
+.layer-icon{font-size:28px;min-width:40px;}
+.layer-name{
+  font-family:'Times New Roman', Times, serif;
+  font-size:22px;
+  letter-spacing:0px;
+  color:var(--layer-color, #b87c4f);
+  font-weight:bold;
+}
+.layer-desc{
+  font-family:'Times New Roman', Times, serif;
+  font-size:12px;
+  color:#7a6a58;
+  margin-top:4px;
+}
+.layer-tags{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-top:10px;
+}
+.ltag{
+  font-family:'Times New Roman', Times, serif;
+  font-size:10px;
+  padding:2px 10px;
+  background:#fefaf5;
+  border:1px solid #e8e0d5;
+  color:#7a6a58;
+  border-radius:2px;
+}
+.arrow-conn{
+  text-align:center;
+  font-size:18px;
+  color:#d4c4b4;
+  padding:4px 0;
+}
+
+/* Interactive Request-Response Demo */
+.interactive-label{
+  font-family:'Times New Roman', Times, serif;
+  font-size:11px;
+  color:#b87c4f;
+  letter-spacing:1px;
+  margin-bottom:16px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.interactive-label::before{
+  content:'●';
+  color:#b87c4f;
+  animation:blink 1s step-end infinite;
+}
+@keyframes blink{50%{opacity:0;}}
+.rrc-step{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  padding:14px 20px;
+  background:#ffffff;
+  border:1px solid #e8e0d5;
+  cursor:none;
+  transition:all 0.3s;
+  border-radius:4px;
+}
+.rrc-step:hover{
+  border-color:#b87c4f;
+  background:#fefaf5;
+}
+
+/* Responsive */
+@media(max-width:768px){
+  #sidebar{transform:translateX(-240px);}
+  #main{margin-left:0;width:100%;}
+  .page-hero-content{padding:30px 24px;}
+  .content{padding:40px 24px;}
+  .page-nav{padding:32px 24px;}
+  footer{padding:20px 24px;}
+  .block-body{max-width:100%;}
+  .layer{flex-direction:column;align-items:flex-start;}
+}
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- Loader -->
+<div id="loader">
+  <div class="loader-sigil">FS</div>
+  <div class="loader-line">Loading full stack documentation...</div>
+  <div class="loader-progress"><div class="loader-fill"></div></div>
+</div>
+
+<!-- Sidebar Navigation -->
+<nav id="sidebar">
+  <div class="sidebar-toggle">MENU</div>
+  <div class="sidebar-logo">
+    <span class="logo-mark">KARUN</span>
+    <span class="logo-sub">Full Stack Portfolio</span>
+  </div>
+  <a href="index.html" class="nav-link"><span class="nav-num">00</span><span class="nav-icon">⌂</span><span>Home</span></a>
+  <a href="fullstack.html" class="nav-link active"><span class="nav-num">01</span><span class="nav-icon">◈</span><span>Full Stack</span></a>
+  <a href="html.html" class="nav-link"><span class="nav-num">02</span><span class="nav-icon">⟨⟩</span><span>HTML</span></a>
+  <a href="css.html" class="nav-link"><span class="nav-num">03</span><span class="nav-icon">✦</span><span>CSS</span></a>
+  <a href="bootstrap.html" class="nav-link"><span class="nav-num">04</span><span class="nav-icon">⊞</span><span>Bootstrap</span></a>
+  <a href="javascript.html" class="nav-link"><span class="nav-num">05</span><span class="nav-icon">λ</span><span>JavaScript</span></a>
+</nav>
+
+<main id="main">
+
+  <!-- Hero Section -->
+  <div class="page-hero">
+    <div class="page-hero-bg"></div>
+    <div class="page-hero-overlay"></div>
+    <div class="page-hero-content">
+      <div class="page-chapter">Chapter 01 — Full Stack Development</div>
+      <h1 class="page-title">FULL<br>STACK</h1>
+      <p class="page-subtitle">From browser to database and back.</p>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- Definition -->
+    <div class="block reveal">
+      <div class="block-header">
+        <div class="block-tag">Introduction</div>
+        <h2 class="block-title">What is Full Stack Development?</h2>
+      </div>
+      <div class="block-body">
+        A <strong>full stack developer</strong> is a software engineer capable of working on every layer of a web application — the visual interface users interact with (<em>frontend</em>), the server logic that processes data (<em>backend</em>), and the database that stores everything. The term <strong>"stack"</strong> refers to the complete set of technologies layered together to form a working application.
+        <br><br>
+        Think of it like a building: HTML/CSS/JavaScript form the facade, PHP and Node.js form the structure, and MySQL/MongoDB form the foundation. A full stack developer can design, build, and maintain all of these layers independently.
+      </div>
+    </div>
+
+    <!-- Architecture Layers -->
+    <div class="block reveal">
+      <div class="block-header">
+        <div class="block-tag">Architecture</div>
+        <h2 class="block-title">The Four Layers</h2>
+      </div>
+      <p class="block-body">Every web application is built in layers. Hover each layer to explore:</p>
+      <div class="layer-stack">
+        <div class="layer" style="--layer-color:#b87c4f;">
+          <div class="layer-icon">🖥️</div>
+          <div>
+            <div class="layer-name">Presentation Layer — Frontend</div>
+            <div class="layer-desc">What the user sees and interacts with in the browser.</div>
+            <div class="layer-tags">
+              <span class="ltag">HTML5</span><span class="ltag">CSS3</span><span class="ltag">JavaScript</span><span class="ltag">Bootstrap</span>
+            </div>
+          </div>
+        </div>
+        <div class="arrow-conn">↕</div>
+        <div class="layer" style="--layer-color:#b87c4f;">
+          <div class="layer-icon">⚙️</div>
+          <div>
+            <div class="layer-name">Application Layer — Backend</div>
+            <div class="layer-desc">Server logic, routing, authentication, business rules.</div>
+            <div class="layer-tags">
+              <span class="ltag">PHP</span><span class="ltag">Node.js</span><span class="ltag">REST API</span><span class="ltag">Sessions</span>
+            </div>
+          </div>
+        </div>
+        <div class="arrow-conn">↕</div>
+        <div class="layer" style="--layer-color:#b87c4f;">
+          <div class="layer-icon">🗄️</div>
+          <div>
+            <div class="layer-name">Data Layer — Database</div>
+            <div class="layer-desc">Persistent storage, queries, relationships.</div>
+            <div class="layer-tags">
+              <span class="ltag">MySQL</span><span class="ltag">PostgreSQL</span><span class="ltag">MongoDB</span>
+            </div>
+          </div>
+        </div>
+        <div class="arrow-conn">↕</div>
+        <div class="layer" style="--layer-color:#b87c4f;">
+          <div class="layer-icon">☁️</div>
+          <div>
+            <div class="layer-name">Infrastructure Layer</div>
+            <div class="layer-desc">Hosting, deployment, scaling, CI/CD pipelines.</div>
+            <div class="layer-tags">
+              <span class="ltag">Apache</span><span class="ltag">Nginx</span><span class="ltag">Docker</span><span class="ltag">Git</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Request-Response Cycle -->
+    <div class="block reveal">
+      <div class="block-header">
+        <div class="block-tag">Interactive Demo</div>
+        <h2 class="block-title">The Request–Response Cycle</h2>
+      </div>
+      <p class="block-body" style="margin-bottom:24px;">Click each step to trace a web request through the entire stack:</p>
+      <div class="interactive-label">Click the steps to explore</div>
+      <div id="rrcDemo" style="display:flex;flex-direction:column;gap:10px;max-width:90%;">
+        <div class="rrc-step" data-step="0" onclick="showRRC(0)">
+          <span style="font-family:'Times New Roman', Times, serif;font-size:24px;color:#d4c4b4;min-width:32px;">1</span>
+          <div>
+            <div style="font-family:'Times New Roman', Times, serif;font-size:13px;color:#2c241a;">User types a URL or clicks a button</div>
+          </div>
+        </div>
+        <div class="rrc-step" data-step="1" onclick="showRRC(1)">
+          <span style="font-family:'Times New Roman', Times, serif;font-size:24px;color:#d4c4b4;min-width:32px;">2</span>
+          <div><div style="font-family:'Times New Roman', Times, serif;font-size:13px;color:#2c241a;">Browser sends HTTP GET/POST request</div></div>
+        </div>
+        <div class="rrc-step" data-step="2" onclick="showRRC(2)">
+          <span style="font-family:'Times New Roman', Times, serif;font-size:24px;color:#d4c4b4;min-width:32px;">3</span>
+          <div><div style="font-family:'Times New Roman', Times, serif;font-size:13px;color:#2c241a;">PHP/Server processes the request</div></div>
+        </div>
+        <div class="rrc-step" data-step="3" onclick="showRRC(3)">
+          <span style="font-family:'Times New Roman', Times, serif;font-size:24px;color:#d4c4b4;min-width:32px;">4</span>
+          <div><div style="font-family:'Times New Roman', Times, serif;font-size:13px;color:#2c241a;">Database is queried (SQL/NoSQL)</div></div>
+        </div>
+        <div class="rrc-step" data-step="4" onclick="showRRC(4)">
+          <span style="font-family:'Times New Roman', Times, serif;font-size:24px;color:#d4c4b4;min-width:32px;">5</span>
+          <div><div style="font-family:'Times New Roman', Times, serif;font-size:13px;color:#2c241a;">Server builds HTML/JSON response</div></div>
+        </div>
+        <div class="rrc-step" data-step="5" onclick="showRRC(5)">
+          <span style="font-family:'Times New Roman', Times, serif;font-size:24px;color:#d4c4b4;min-width:32px;">6</span>
+          <div><div style="font-family:'Times New Roman', Times, serif;font-size:13px;color:#2c241a;">Browser renders the content for the user</div></div>
+        </div>
+        <div id="rrcDetail" style="padding:20px 24px;background:#fefaf5;border:1px solid #b87c4f;font-family:'Times New Roman', Times, serif;font-size:13px;color:#2c241a;line-height:1.9;display:none;margin-top:8px;border-radius:4px;"></div>
+      </div>
+    </div>
+
+    <!-- PHP Backend Example -->
+    <div class="block reveal">
+      <div class="block-header">
+        <div class="block-tag">Backend Example — PHP</div>
+        <h2 class="block-title">PHP Server-Side Scripting</h2>
+      </div>
+      <div class="block-body">
+        <strong>PHP</strong> (Hypertext Preprocessor) is a server-side scripting language that runs on the web server before the page is sent to the browser. It can read form data, query databases, manage sessions, and dynamically generate HTML.
+      </div>
+      <div class="code-block" style="margin-top:24px;">
+        <div class="code-block-header">
+          <span class="code-block-title">PHP Login Handler with MySQL</span>
+          <span class="code-block-lang">PHP 8</span>
+        </div>
+        <div class="code-block-body">
+          <div class="line-nums"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span><span>15</span><span>16</span><span>17</span><span>18</span><span>19</span><span>20</span></div>
+          <div class="code-content"><span class="com">&lt;?php</span>
+<span class="com">// Connect to MySQL database</span>
+<span class="kw">$conn</span> = <span class="fn">mysqli_connect</span>(<span class="str">"localhost"</span>, <span class="str">"root"</span>, <span class="str">""</span>, <span class="str">"myapp"</span>);
+
+<span class="com">// Check connection</span>
+<span class="kw">if</span> (!<span class="kw">$conn</span>) {
+    <span class="fn">die</span>(<span class="str">"Connection failed: "</span> . <span class="fn">mysqli_connect_error</span>());
+}
+
+<span class="com">// Sanitise user input (security!)</span>
+<span class="kw">$username</span> = <span class="fn">mysqli_real_escape_string</span>(<span class="kw">$conn</span>, <span class="kw">$_POST</span>[<span class="str">'username'</span>]);
+
+<span class="com">// Query the users table</span>
+<span class="kw">$sql</span> = <span class="str">"SELECT id, name FROM users WHERE username='<span class="kw">$username</span>'"</span>;
+<span class="kw">$result</span> = <span class="fn">mysqli_query</span>(<span class="kw">$conn</span>, <span class="kw">$sql</span>);
+
+<span class="kw">if</span> (<span class="fn">mysqli_num_rows</span>(<span class="kw">$result</span>) > 0) {
+    <span class="kw">$row</span> = <span class="fn">mysqli_fetch_assoc</span>(<span class="kw">$result</span>);
+    <span class="fn">echo</span> <span class="str">"Welcome, "</span> . <span class="kw">$row</span>[<span class="str">'name'</span>];
+}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comparison Table -->
+    <div class="block reveal">
+      <div class="block-header">
+        <div class="block-tag">Comparison</div>
+        <h2 class="block-title">Frontend vs Backend vs Full Stack</h2>
+      </div>
+      <table class="styled-table">
+        <thead>
+          <tr><th>Skill Area</th><th>Frontend Dev</th><th>Backend Dev</th><th>Full Stack</th>
+        </thead>
+        <tbody>
+          <tr><td>HTML / CSS</td><td class="check">✓ Expert</td><td class="cross">✘ Basic</td><td class="check">✓ Expert</td></tr>
+          <tr><td>JavaScript</td><td class="check">✓ Expert</td><td class="part">~ Partial</td><td class="check">✓ Expert</td></tr>
+          <tr><td>PHP / Server Logic</td><td class="cross">✘ None</td><td class="check">✓ Expert</td><td class="check">✓ Proficient</td></tr>
+          <tr><td>MySQL / Databases</td><td class="cross">✘ None</td><td class="check">✓ Expert</td><td class="check">✓ Proficient</td></tr>
+          <tr><td>REST APIs</td><td class="part">~ Consume only</td><td class="check">✓ Build & Consume</td><td class="check">✓ Both</td></tr>
+          <tr class="even">.<td>Deployment / DevOps</td><td class="cross">✘ Rarely</td><td class="part">~ Partial</td><td class="check">✓ Proficient</td>
+        </tbody>
+       </table>
+    </div>
+
+    <!-- Popular Stacks -->
+    <div class="block reveal">
+      <div class="block-header">
+        <div class="block-tag">Technology Stacks</div>
+        <h2 class="block-title">Popular Stacks</h2>
+      </div>
+      <div class="info-grid">
+        <div class="info-cell">
+          <div class="info-cell-icon">🔥</div>
+          <div class="info-cell-title">LAMP</div>
+          <div class="info-cell-body">Linux · Apache · MySQL · <strong style="color:#b87c4f">PHP</strong><br><br>The classic web stack, still powering millions of sites. Our curriculum is built on this stack.</div>
+        </div>
+        <div class="info-cell">
+          <div class="info-cell-icon">⚛️</div>
+          <div class="info-cell-title">MERN</div>
+          <div class="info-cell-body">MongoDB · Express · React · Node.js<br><br>A modern JavaScript-everywhere stack popular for SPAs and real-time apps.</div>
+        </div>
+        <div class="info-cell">
+          <div class="info-cell-icon">⚡</div>
+          <div class="info-cell-title">MEAN</div>
+          <div class="info-cell-body">MongoDB · Express · Angular · Node.js<br><br>Enterprise-ready full-JS stack with Angular's structured approach.</div>
+        </div>
+        <div class="info-cell">
+          <div class="info-cell-icon">🚀</div>
+          <div class="info-cell-title">JAMstack</div>
+          <div class="info-cell-body">JavaScript · APIs · Markup<br><br>Static-first architecture with dynamic functionality via APIs.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Page Navigation -->
+  <div class="page-nav">
+    <span></span>
+    <a href="html.html" class="next">HTML →</a>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <span class="footer-text">© 2025–26 Karun Thapa</span>
+    <span class="footer-text">Full Stack Fundamentals</span>
+  </footer>
+
+</main>
+
+<script>
+// Custom cursor
+const cursor=document.getElementById('cursor'),ring=document.getElementById('cursor-ring');
+document.addEventListener('mousemove',e=>{
+  cursor.style.left=e.clientX+'px';
+  cursor.style.top=e.clientY+'px';
+  setTimeout(()=>{
+    ring.style.left=e.clientX+'px';
+    ring.style.top=e.clientY+'px';
+  },80);
+});
+
+// Hide loader after page loads
+window.addEventListener('load',()=>{
+  setTimeout(()=>{
+    document.getElementById('loader').classList.add('hidden');
+    initReveal();
+  },2600);
+});
+
+// Scroll reveal
+function initReveal(){
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting)e.target.classList.add('visible');
+    });
+  },{threshold:0.1});
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+  document.querySelectorAll('.reveal').forEach(el=>{
+    const r=el.getBoundingClientRect();
+    if(r.top<window.innerHeight)el.classList.add('visible');
+  });
+}
+
+// Request-response cycle details
+const rrcDetails = [
+  "The journey begins when a user types a URL or clicks a link. The browser performs a DNS lookup to translate the domain into an IP address of the server.",
+  "The browser constructs an HTTP request — a formatted message containing the method (GET for fetching, POST for submitting), headers (cookies, content type), and optionally a body for POST requests.",
+  "The server (running PHP via Apache/Nginx) receives the request. PHP scripts execute: check session data, validate input, apply business logic, determine which database data is needed, and prepare the response.",
+  "PHP queries the MySQL database using SQL. MySQL returns the matching rows. PHP processes the result set — filtering, sorting, transforming data before passing it to the response.",
+  "PHP assembles the final response — either an HTML page with dynamic data or a JSON payload. HTTP headers are set (status 200, content-type, cache headers).",
+  "The browser receives the HTTP response. It parses HTML, builds the DOM tree, fetches linked CSS/JS/images, applies styles, executes JavaScript, and paints the final visual page."
+];
+function showRRC(idx){
+  document.querySelectorAll('.rrc-step').forEach((el,i)=>{
+    el.style.borderColor=i===idx?'#b87c4f':'#e8e0d5';
+    el.querySelector('span').style.color=i===idx?'#b87c4f':'#d4c4b4';
+  });
+  const detail=document.getElementById('rrcDetail');
+  detail.style.display='block';
+  detail.innerHTML=rrcDetails[idx];
+}
+</script>
+</body>
+</html>
